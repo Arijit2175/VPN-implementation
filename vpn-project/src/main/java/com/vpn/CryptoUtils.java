@@ -36,5 +36,9 @@ public class CryptoUtils {
         return cipher.doFinal(data);
     }
 
-
+    public static byte[] aesDecrypt(byte[] data, SecretKey aesKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, aesKey);
+        return cipher.doFinal(data);
+    }
 }
