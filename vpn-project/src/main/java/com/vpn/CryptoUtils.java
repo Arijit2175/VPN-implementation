@@ -9,6 +9,6 @@ public class CryptoUtils {
     public static KeyPair generateRSKeyPair() throws NoSuchAlgorithmException {
         KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
-        return keyGen.generateKeyPair(
+        return keyGen.generateKeyPair();
     }
 }
