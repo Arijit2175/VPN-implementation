@@ -18,5 +18,9 @@ public class CryptoUtils {
         return keyGen.generateKey();
     }
 
-    
+    public static byte[] rsaEncrypt(byte[] data, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(data);
+    }
 }
