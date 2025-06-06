@@ -45,4 +45,9 @@ public class CryptoUtils {
     public static String secretKeyToString(SecretKey key){
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }   
+
+    public static SecretKey stringToSecretKey(String keyStr) {
+        byte[] decoded = Base64.getDecoder().decode(keyStr);
+        return new SecretKeySpec(decoded, 0, decoded.length, "AES");
+    }
 }
