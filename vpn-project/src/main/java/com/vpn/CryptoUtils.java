@@ -41,4 +41,8 @@ public class CryptoUtils {
         cipher.init(Cipher.DECRYPT_MODE, aesKey);
         return cipher.doFinal(data);
     }
+
+    public static String secretKeyToString(SecretKey key){
+        return Base64.getEncoder().encodeToString(key.getEncoded());
+    }   
 }
