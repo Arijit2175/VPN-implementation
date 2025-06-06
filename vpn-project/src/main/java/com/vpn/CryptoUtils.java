@@ -11,4 +11,12 @@ public class CryptoUtils {
         keyGen.initialize(2048);
         return keyGen.generateKeyPair();
     }
+
+    public static SecretKey generateAESKey() throws NoSuchAlgorithmException {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128);
+        return keyGen.generateKey();
+    }
+
+    
 }
