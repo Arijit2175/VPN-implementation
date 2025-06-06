@@ -30,11 +30,11 @@ public class CryptoUtils {
         return cipher.doFinal(data);
     }
 
-    public static byte[] aesEncrypt(byte[] data, SecretKey secretKey) throws Exception {
+    public static byte[] aesEncrypt(byte[] data, SecretKey aesKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        cipher.init(Cipher.ENCRYPT_MODE, aesKey);
         return cipher.doFinal(data);
     }
 
-    
+
 }
