@@ -18,4 +18,8 @@ public class VPNClientWithLogging {
 
             String response = in.readLine();
             log(logArea, "📥 Received: " + response);
-}
+} catch (IOException e) {
+            log(logArea, "❌ Connection error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
