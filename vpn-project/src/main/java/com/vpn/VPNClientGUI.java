@@ -20,4 +20,11 @@ public class VPNClientGUI extends JFrame{
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
+
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        themeToggleButton = new JButton("🌙 Dark Mode");
+        themeToggleButton.setFocusPainted(false);
+        themeToggleButton.addActionListener(this::toggleTheme);
+        topPanel.add(themeToggleButton);
+        add(topPanel, BorderLayout.NORTH);
 }
