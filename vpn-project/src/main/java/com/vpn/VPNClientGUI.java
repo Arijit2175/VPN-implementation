@@ -50,3 +50,14 @@ private void onConnect(ActionEvent e) {
         connectButton.setEnabled(false);
         log("🔌 Connecting...");
 
+        new Thread(() -> {
+            try {
+                VPNClientWithLogging.runClient(logArea);
+            } catch (Exception ex) {
+                log("❌ Error: " + ex.getMessage());
+                ex.printStackTrace();
+            } finally {
+                connectButton.setEnabled(true);
+            }
+        }).start();
+    }
