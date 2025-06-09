@@ -42,7 +42,13 @@ public class VPNServer {
             String clientMessage = new String(decryptedBytes);
             System.out.println("Received from client (decrypted): " + clientMessage);
 
-            String response = "Hello Secure Client";
+            //String response = "Hello Secure Client";
+            String response;
+            if(clientMessage.startsWith("GET /example")){
+                response = "200 OK\n<html><body>Example Page</body></html>";
+            } else {
+                response = "404 Not Found";
+            }
             byte[] responseEncrypted = CryptoUtils.aesEncrypt(response.getBytes(), aesKey);
             out.println(Base64.getEncoder().encodeToString(responseEncrypted));
 
