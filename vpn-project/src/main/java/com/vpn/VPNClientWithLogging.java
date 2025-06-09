@@ -16,5 +16,6 @@ public class VPNClientWithLogging {
             out.flush();
             log(logArea, "📤 Sent: Hello VPN Server");
 
-            
+            String response = in.readLine();
+            log(logArea, "📥 Received: " + response);
 }
