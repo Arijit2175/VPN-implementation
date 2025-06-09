@@ -32,7 +32,7 @@ public class VPNServer {
             byte[] encryptedAESKey = Base64.getDecoder().decode(encryptedAESKeyBase64);
 
             byte[] decryptedAESKeyBytes = CryptoUtils.rsaDecrypt(encryptedAESKey, privateKey);
-            SecretKey aesKey = CryptoUtils.stringToSecretKey(Base64.getEncoder().encodeToString(decryptedAESKeyBytes));
+            SecretKey aesKey = new javax.crypto.spec.SecretKeySpec(decryptedAESKeyBytes, "AES");
 
             System.out.println("AES key established securely.");
 
