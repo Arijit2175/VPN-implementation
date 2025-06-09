@@ -2,6 +2,10 @@ package com.vpn;
 
 import java.io.*;
 import java.net.*;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class VPNClient {
     public static void main(String[] args) {
@@ -13,11 +17,11 @@ public class VPNClient {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(socket.getInputStream()));
 
-            out.println("Hello VPN Server");
-            String response = in.readLine();
-            System.out.println("Received from server: " + response);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            String base64PublicKey = in.readLine();
+            byte[] publicKeyBytes = Base64.getDecoder().decode(base64PublicKey);
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey serverPublicKey = keyFactory.generatePublic(keySpec);
     }
+}
 }
