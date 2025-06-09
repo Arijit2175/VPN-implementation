@@ -7,6 +7,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
 
+import javax.crypto.SecretKey;
+
 public class VPNServer {
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(9000)) {
@@ -27,12 +29,10 @@ public class VPNServer {
             String base64PublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
             out.println(base64PublicKey);
 
-            String clientMessage = in.readLine();
-            System.out.println("Received from client: " + clientMessage);
-
-            out.println("Hello VPN Client");
-        } catch (IOException e) {
-            e.printStackTrace();
+            String encryptedAESKeyBase64 = in.readLine();
+            byte[] encryptedAESKey = Base64.getDecoder().decode(encryptedAESKeyBase64);
+            byte[] decryptedAESKeyBytes = CryptoUtils.rsaDecrypt(encryptedAESKey, privateKey);
+            SecretKey aesKey = CryptoUtils.stringToSecretKey(Base64.getEncoder().encodeToString(decryptedAESKeyBytes));
         }
     }
 }
