@@ -41,6 +41,14 @@ public class VPNServer {
             byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
             String clientMessage = new String(decryptedBytes);
             System.out.println("Received from client (decrypted): " + clientMessage);
+
+            String response = "Hello Secure Client";
+            byte[] responseEncrypted = CryptoUtils.aesEncrypt(response.getBytes(), aesKey);
+            out.println(Base64.getEncoder().encodeToString(responseEncrypted));
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
+        }
 }
+
