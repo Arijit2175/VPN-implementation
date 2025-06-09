@@ -27,4 +27,12 @@ public class VPNClientGUI extends JFrame{
         themeToggleButton.addActionListener(this::toggleTheme);
         topPanel.add(themeToggleButton);
         add(topPanel, BorderLayout.NORTH);
+
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        logArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+        logArea.setMargin(new Insets(10, 10, 10, 10));
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Encrypted VPN Logs"));
+        add(scrollPane, BorderLayout.CENTER);
 }
