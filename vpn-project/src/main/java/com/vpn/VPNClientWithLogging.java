@@ -12,5 +12,9 @@ public class VPNClientWithLogging {
 
             log(logArea, "✅ Connected to VPN Server");
 
+            out.write("Hello VPN Server\n");
+            out.flush();
+            log(logArea, "📤 Sent: Hello VPN Server");
+
             
 }
