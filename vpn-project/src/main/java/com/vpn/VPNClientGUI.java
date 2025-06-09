@@ -61,3 +61,19 @@ private void onConnect(ActionEvent e) {
             }
         }).start();
     }
+
+     private void toggleTheme(ActionEvent e) {
+        try {
+            if (isDarkMode) {
+                FlatLightLaf.setup();
+                themeToggleButton.setText("🌙 Dark Mode");
+            } else {
+                FlatDarkLaf.setup();
+                themeToggleButton.setText("☀️ Light Mode");
+            }
+            isDarkMode = !isDarkMode;
+            SwingUtilities.updateComponentTreeUI(this);
+        } catch (Exception ex) {
+            log("⚠️ Theme switch failed: " + ex.getMessage());
+        }
+    }
