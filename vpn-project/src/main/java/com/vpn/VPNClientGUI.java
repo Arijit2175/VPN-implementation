@@ -45,3 +45,8 @@ public class VPNClientGUI extends JFrame{
         connectButton.addActionListener(this::onConnect);
         add(connectButton, BorderLayout.SOUTH);
 }
+
+private void onConnect(ActionEvent e) {
+        connectButton.setEnabled(false);
+        log("🔌 Connecting...");
+
