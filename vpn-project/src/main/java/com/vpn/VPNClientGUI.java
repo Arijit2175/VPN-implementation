@@ -35,4 +35,13 @@ public class VPNClientGUI extends JFrame{
         JScrollPane scrollPane = new JScrollPane(logArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Encrypted VPN Logs"));
         add(scrollPane, BorderLayout.CENTER);
+
+        connectButton = new JButton("Connect to VPN Server");
+        connectButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        connectButton.setBackground(new Color(33, 150, 243));
+        connectButton.setForeground(Color.WHITE);
+        connectButton.setFocusPainted(false);
+        connectButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        connectButton.addActionListener(this::onConnect);
+        add(connectButton, BorderLayout.SOUTH);
 }
