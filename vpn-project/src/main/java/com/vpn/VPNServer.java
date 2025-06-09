@@ -17,44 +17,46 @@ public class VPNServer {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected: " + clientSocket.getInetAddress());
 
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(
-                    clientSocket.getOutputStream(), true);
+            DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
             KeyPair rsaKeyPair = CryptoUtils.generateRSAKeyPair();
             PublicKey publicKey = rsaKeyPair.getPublic();
             PrivateKey privateKey = rsaKeyPair.getPrivate();
 
             String base64PublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-            out.println(base64PublicKey);
+            out.writeUTF(base64PublicKey);
+            out.flush();
 
-            String encryptedAESKeyBase64 = in.readLine();
+            String encryptedAESKeyBase64 = in.readUTF();
             byte[] encryptedAESKey = Base64.getDecoder().decode(encryptedAESKeyBase64);
+
             byte[] decryptedAESKeyBytes = CryptoUtils.rsaDecrypt(encryptedAESKey, privateKey);
             SecretKey aesKey = CryptoUtils.stringToSecretKey(Base64.getEncoder().encodeToString(decryptedAESKeyBytes));
 
-             System.out.println("AES key established securely.");
+            System.out.println("AES key established securely.");
 
-            String encryptedMessage = in.readLine();
-            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedMessage);
-            byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
+            String encryptedMessageBase64 = in.readUTF();
+            byte[] encryptedMessageBytes = Base64.getDecoder().decode(encryptedMessageBase64);
+
+            byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedMessageBytes, aesKey);
             String clientMessage = new String(decryptedBytes);
             System.out.println("Received from client (decrypted): " + clientMessage);
 
-            //String response = "Hello Secure Client";
             String response;
-            if(clientMessage.startsWith("GET /example")){
+            if (clientMessage.startsWith("GET /example")) {
                 response = "200 OK\n<html><body>Example Page</body></html>";
             } else {
                 response = "404 Not Found";
             }
+
             byte[] responseEncrypted = CryptoUtils.aesEncrypt(response.getBytes(), aesKey);
-            out.println(Base64.getEncoder().encodeToString(responseEncrypted));
+
+            out.writeUTF(Base64.getEncoder().encodeToString(responseEncrypted));
+            out.flush();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        }
+    }
 }
-
