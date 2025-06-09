@@ -81,3 +81,17 @@ private void onConnect(ActionEvent e) {
     private void log(String message) {
         SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
     }
+
+    public static void main(String[] args) {
+        try {
+            FlatLightLaf.setup();
+        } catch (Exception e) {
+            System.err.println("Failed to set FlatLaf theme.");
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            VPNClientGUI gui = new VPNClientGUI();
+            gui.setVisible(true);
+        });
+    }
+}
