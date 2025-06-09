@@ -3,23 +3,35 @@ package com.vpn;
 import javax.swing.JTextArea;
 import java.io.*;
 import java.net.Socket;
+import java.security.*;
+import java.util.Base64;
 
 public class VPNClientWithLogging {
-     public static void runClient(JTextArea logArea) {
-        try (Socket socket = new Socket("localhost", 9000);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
 
-            log(logArea, "✅ Connected to VPN Server");
+    public static void runClient(JTextArea logArea) {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(2048);
+            KeyPair keyPair = keyGen.generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
 
-            out.write("Hello VPN Server\n");
-            out.flush();
-            log(logArea, "📤 Sent: Hello VPN Server");
+            String publicKeyBase64 = Base64.getEncoder().encodeToString(publicKey.getEncoded());
 
-            String response = in.readLine();
-            log(logArea, "📥 Received: " + response);
-} catch (IOException e) {
-            log(logArea, "❌ Connection error: " + e.getMessage());
+            try (Socket socket = new Socket("localhost", 9000)) {
+                log(logArea, "✅ Connected to VPN Server");
+
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                DataInputStream dis = new DataInputStream(socket.getInputStream());
+
+                dos.writeUTF(publicKeyBase64);
+                log(logArea, "📤 Sent public key to server");
+
+                String response = dis.readUTF();
+                log(logArea, "📥 Received from server: " + response);
+            }
+
+        } catch (Exception e) {
+            log(logArea, "❌ Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
