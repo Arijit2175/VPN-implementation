@@ -14,5 +14,10 @@ public class VPNClientGUI extends JFrame{
     private JButton themeToggleButton;
     private boolean isDarkMode = false;
 
-
+    public VPNClientGUI() {
+        setTitle("🔒 VPN Client - Secure Tunnel");
+        setSize(600, 450);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
 }
