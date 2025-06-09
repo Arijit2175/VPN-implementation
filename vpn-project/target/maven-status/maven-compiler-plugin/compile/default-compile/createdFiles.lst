@@ -1,3 +1,5 @@
 com\vpn\CryptoUtils.class
-com\vpn\VPNClient.class
+com\vpn\VPNClientWithLogging.class
 com\vpn\VPNServer.class
+com\vpn\VPNClient.class
+com\vpn\VPNClientGUI.class
