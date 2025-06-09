@@ -7,6 +7,8 @@ import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import javax.crypto.SecretKey;
+
 public class VPNClient {
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 9000)) {
@@ -22,6 +24,10 @@ public class VPNClient {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PublicKey serverPublicKey = keyFactory.generatePublic(keySpec);
+
+            SecretKey aesKey = CryptoUtils.generateAESKey();
+            byte[] encryptedAESKey = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPublicKey);
+            out.println(Base64.getEncoder().encodeToString(encryptedAESKey));
     }
 }
 }
