@@ -8,6 +8,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class VPNClientGUI {
-    
+public class VPNClientGUI extends JFrame{
+    private JTextArea logArea;
+    private JButton connectButton;
+    private JButton themeToggleButton;
+    private boolean isDarkMode = false;
+
+
 }
