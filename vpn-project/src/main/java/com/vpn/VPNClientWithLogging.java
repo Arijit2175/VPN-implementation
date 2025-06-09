@@ -23,3 +23,8 @@ public class VPNClientWithLogging {
             e.printStackTrace();
         }
     }
+
+    private static void log(JTextArea area, String msg) {
+        area.append(msg + "\n");
+    }
+}
