@@ -23,10 +23,12 @@
     </plugins>
   </build>
 
-  <dependency>
+<dependencies>
+ <dependency>
   <groupId>com.formdev</groupId>
   <artifactId>flatlaf</artifactId>
   <version>3.4</version> 
 </dependency>
+</dependencies>
 
 </project>
