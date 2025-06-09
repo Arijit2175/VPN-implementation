@@ -31,7 +31,8 @@ public class VPNClient {
 
             System.out.println("AES key sent securely.");
 
-            String message = "Hello Secure Server";
+            //String message = "Hello Secure Server";
+            String message = "GET /example";
             byte[] encryptedMessage = CryptoUtils.aesEncrypt(message.getBytes(), aesKey);
             out.println(Base64.getEncoder().encodeToString(encryptedMessage));
 
