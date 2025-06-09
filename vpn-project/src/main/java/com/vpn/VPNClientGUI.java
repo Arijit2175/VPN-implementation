@@ -77,3 +77,7 @@ private void onConnect(ActionEvent e) {
             log("⚠️ Theme switch failed: " + ex.getMessage());
         }
     }
+
+    private void log(String message) {
+        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+    }
