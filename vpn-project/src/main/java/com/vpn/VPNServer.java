@@ -33,6 +33,14 @@ public class VPNServer {
             byte[] encryptedAESKey = Base64.getDecoder().decode(encryptedAESKeyBase64);
             byte[] decryptedAESKeyBytes = CryptoUtils.rsaDecrypt(encryptedAESKey, privateKey);
             SecretKey aesKey = CryptoUtils.stringToSecretKey(Base64.getEncoder().encodeToString(decryptedAESKeyBytes));
+
+             System.out.println("AES key established securely.");
+
+            String encryptedMessage = in.readLine();
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedMessage);
+            byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
+            String clientMessage = new String(decryptedBytes);
+            System.out.println("Received from client (decrypted): " + clientMessage);
         }
     }
 }
