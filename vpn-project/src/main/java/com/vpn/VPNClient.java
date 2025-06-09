@@ -28,6 +28,12 @@ public class VPNClient {
             SecretKey aesKey = CryptoUtils.generateAESKey();
             byte[] encryptedAESKey = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPublicKey);
             out.println(Base64.getEncoder().encodeToString(encryptedAESKey));
+
+            System.out.println("AES key sent securely.");
+
+            String message = "Hello Secure Server";
+            byte[] encryptedMessage = CryptoUtils.aesEncrypt(message.getBytes(), aesKey);
+            out.println(Base64.getEncoder().encodeToString(encryptedMessage));
     }
 }
 }
