@@ -16,9 +16,10 @@ public class VPNClientGUI extends JFrame {
 
     private static Font emojiFont() {
         String[] names = { "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji" };
+        int KEY_CP = 0x1F511;                      
         for (String n : names) {
             Font f = new Font(n, Font.PLAIN, 14);
-            if (f.canDisplay('🔑')) return f;
+            if (f.canDisplay(KEY_CP)) return f;
         }
         return new Font("Dialog", Font.PLAIN, 14);  
     }
@@ -89,13 +90,14 @@ public class VPNClientGUI extends JFrame {
     }
 
     private void log(String message) {
-        SwingUtilities.invokeLater(() -> logArea.append(message + "\n"));
+        SwingUtilities.invokeLater(() -> logArea.append(message + '\n'));
     }
 
     public static void main(String[] args) {
         System.setProperty("flatlaf.useEmoji", "true");
 
-        FlatLightLaf.setup();
+        try { FlatLightLaf.setup(); }
+        catch (Exception e) { System.err.println("FlatLaf init failed: " + e); }
 
         SwingUtilities.invokeLater(() -> new VPNClientGUI().setVisible(true));
     }
