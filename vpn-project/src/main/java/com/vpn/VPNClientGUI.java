@@ -2,17 +2,26 @@ package com.vpn;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-//import com.formdev.flatlaf.FlatLaf;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
-public class VPNClientGUI extends JFrame{
+public class VPNClientGUI extends JFrame {
+
     private JTextArea logArea;
-    private JButton connectButton;
-    private JButton themeToggleButton;
-    private boolean isDarkMode = false;
+    private JButton   connectButton;
+    private JButton   themeToggleButton;
+    private boolean   isDarkMode = false;
+
+    private static Font emojiFont() {
+        String[] names = { "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji" };
+        for (String n : names) {
+            Font f = new Font(n, Font.PLAIN, 14);
+            if (f.canDisplay('🔑')) return f;
+        }
+        return new Font("Dialog", Font.PLAIN, 14);  
+    }
 
     public VPNClientGUI() {
         setTitle("🔒 VPN Client - Secure Tunnel");
@@ -23,6 +32,7 @@ public class VPNClientGUI extends JFrame{
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         themeToggleButton = new JButton("🌙 Dark Mode");
+        themeToggleButton.setFont(emojiFont());
         themeToggleButton.setFocusPainted(false);
         themeToggleButton.addActionListener(this::toggleTheme);
         topPanel.add(themeToggleButton);
@@ -30,23 +40,23 @@ public class VPNClientGUI extends JFrame{
 
         logArea = new JTextArea();
         logArea.setEditable(false);
-        logArea.setFont(new Font("Consolas", Font.PLAIN, 14));
+        logArea.setFont(emojiFont());
         logArea.setMargin(new Insets(10, 10, 10, 10));
         JScrollPane scrollPane = new JScrollPane(logArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Encrypted VPN Logs"));
         add(scrollPane, BorderLayout.CENTER);
 
-        connectButton = new JButton("Connect to VPN Server");
-        connectButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        connectButton = new JButton("🔌 Connect to VPN Server");
+        connectButton.setFont(emojiFont().deriveFont(Font.BOLD, 16f));
         connectButton.setBackground(new Color(33, 150, 243));
         connectButton.setForeground(Color.WHITE);
         connectButton.setFocusPainted(false);
         connectButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         connectButton.addActionListener(this::onConnect);
         add(connectButton, BorderLayout.SOUTH);
-}
+    }
 
-private void onConnect(ActionEvent e) {
+    private void onConnect(ActionEvent e) {
         connectButton.setEnabled(false);
         log("🔌 Connecting...");
 
@@ -62,7 +72,7 @@ private void onConnect(ActionEvent e) {
         }).start();
     }
 
-     private void toggleTheme(ActionEvent e) {
+    private void toggleTheme(ActionEvent e) {
         try {
             if (isDarkMode) {
                 FlatLightLaf.setup();
@@ -83,15 +93,10 @@ private void onConnect(ActionEvent e) {
     }
 
     public static void main(String[] args) {
-        try {
-            FlatLightLaf.setup();
-        } catch (Exception e) {
-            System.err.println("Failed to set FlatLaf theme.");
-        }
+        System.setProperty("flatlaf.useEmoji", "true");
 
-        SwingUtilities.invokeLater(() -> {
-            VPNClientGUI gui = new VPNClientGUI();
-            gui.setVisible(true);
-        });
+        FlatLightLaf.setup();
+
+        SwingUtilities.invokeLater(() -> new VPNClientGUI().setVisible(true));
     }
 }
