@@ -1,58 +1,49 @@
 package com.vpn;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.net.*;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.*;
 import java.util.Base64;
 
-import javax.crypto.SecretKey;
-
 public class VPNServer {
+    private static final int PORT = 9000;
+
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(9000)) {
-            System.out.println("VPN Server started on port 9000");
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("VPN Server started on port " + PORT);
 
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("Client connected: " + clientSocket.getInetAddress());
+            Socket client = serverSocket.accept();
+            System.out.println("Client connected: " + client.getInetAddress());
 
-            DataInputStream in = new DataInputStream(clientSocket.getInputStream());
-            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+            DataInputStream  in  = new DataInputStream(client.getInputStream());
+            DataOutputStream out = new DataOutputStream(client.getOutputStream());
 
-            KeyPair rsaKeyPair = CryptoUtils.generateRSAKeyPair();
-            PublicKey publicKey = rsaKeyPair.getPublic();
-            PrivateKey privateKey = rsaKeyPair.getPrivate();
+            KeyPair rsaPair   = CryptoUtils.generateRSAKeyPair();
+            PublicKey  pubKey = rsaPair.getPublic();
+            PrivateKey priv  = rsaPair.getPrivate();
 
-            String base64PublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-            out.writeUTF(base64PublicKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(pubKey.getEncoded()));
             out.flush();
 
-            String encryptedAESKeyBase64 = in.readUTF();
-            byte[] encryptedAESKey = Base64.getDecoder().decode(encryptedAESKeyBase64);
-
-            byte[] decryptedAESKeyBytes = CryptoUtils.rsaDecrypt(encryptedAESKey, privateKey);
-            SecretKey aesKey = new javax.crypto.spec.SecretKeySpec(decryptedAESKeyBytes, "AES");
+            byte[] encKeyBytes = Base64.getDecoder().decode(in.readUTF());
+            byte[] aesBytes    = CryptoUtils.rsaDecrypt(encKeyBytes, priv);   // 16 bytes
+            SecretKey aesKey   = new SecretKeySpec(aesBytes, "AES");
 
             System.out.println("AES key established securely.");
 
-            String encryptedMessageBase64 = in.readUTF();
-            byte[] encryptedMessageBytes = Base64.getDecoder().decode(encryptedMessageBase64);
+            byte[] encReq  = Base64.getDecoder().decode(in.readUTF());
+            String request = new String(CryptoUtils.aesDecrypt(encReq, aesKey));
+            System.out.println("Received (decrypted): " + request);
 
-            byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedMessageBytes, aesKey);
-            String clientMessage = new String(decryptedBytes);
-            System.out.println("Received from client (decrypted): " + clientMessage);
+            String body = request.startsWith("GET /example")
+                         ? "200 OK\n<html><body>Example Page</body></html>"
+                         : "404 Not Found";
 
-            String response;
-            if (clientMessage.startsWith("GET /example")) {
-                response = "200 OK\n<html><body>Example Page</body></html>";
-            } else {
-                response = "404 Not Found";
-            }
-
-            byte[] responseEncrypted = CryptoUtils.aesEncrypt(response.getBytes(), aesKey);
-
-            out.writeUTF(Base64.getEncoder().encodeToString(responseEncrypted));
+            byte[] encResp = CryptoUtils.aesEncrypt(body.getBytes(), aesKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(encResp));
             out.flush();
 
         } catch (Exception e) {
