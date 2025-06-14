@@ -1,42 +1,53 @@
 package com.vpn;
 
+import javax.crypto.SecretKey;
 import javax.swing.JTextArea;
 import java.io.*;
 import java.net.Socket;
-import java.security.*;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import javax.swing.SwingUtilities;
 
 public class VPNClientWithLogging {
 
     public static void runClient(JTextArea logArea) {
-        try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(2048);
-            KeyPair keyPair = keyGen.generateKeyPair();
-            PublicKey publicKey = keyPair.getPublic();
+        try (Socket sock = new Socket("localhost", 9000)) {
 
-            String publicKeyBase64 = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+            DataInputStream  in  = new DataInputStream(sock.getInputStream());
+            DataOutputStream out = new DataOutputStream(sock.getOutputStream());
 
-            try (Socket socket = new Socket("localhost", 9000)) {
-                log(logArea, "✅ Connected to VPN Server");
+            log(logArea, "✅ Connected to VPN Server");
 
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                DataInputStream dis = new DataInputStream(socket.getInputStream());
+            byte[] pubBytes = Base64.getDecoder().decode(in.readUTF());
+            PublicKey serverPub = KeyFactory.getInstance("RSA")
+                                            .generatePublic(new X509EncodedKeySpec(pubBytes));
+            log(logArea, "🔑 RSA public key received");
 
-                dos.writeUTF(publicKeyBase64);
-                log(logArea, "📤 Sent public key to server");
+            SecretKey aesKey = CryptoUtils.generateAESKey();
+            byte[] encKey    = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPub); // encrypt raw bytes
+            out.writeUTF(Base64.getEncoder().encodeToString(encKey));
+            out.flush();
+            log(logArea, "📤 AES key sent securely");
 
-                String response = dis.readUTF();
-                log(logArea, "📥 Received from server: " + response);
-            }
+            String request   = "GET /example";
+            byte[] encReq    = CryptoUtils.aesEncrypt(request.getBytes(), aesKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(encReq));
+            out.flush();
+            log(logArea, "📤 Sent: " + request);
 
-        } catch (Exception e) {
-            log(logArea, "❌ Error: " + e.getMessage());
-            e.printStackTrace();
+            byte[] encResp = Base64.getDecoder().decode(in.readUTF());
+            String resp    = new String(CryptoUtils.aesDecrypt(encResp, aesKey));
+            log(logArea, "📥 Received: " + resp);
+
+        } catch (Exception ex) {
+            log(logArea, "❌ " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
     private static void log(JTextArea area, String msg) {
-        area.append(msg + "\n");
+        SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
     }
 }
