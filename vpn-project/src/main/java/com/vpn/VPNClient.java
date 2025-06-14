@@ -1,43 +1,39 @@
 package com.vpn;
 
+import javax.crypto.SecretKey;
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-
-import javax.crypto.SecretKey;
 
 public class VPNClient {
     public static void main(String[] args) {
         try (Socket socket = new Socket("localhost", 9000)) {
             System.out.println("Connected to VPN Server");
 
-            PrintWriter out = new PrintWriter(
-                    socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
+            DataInputStream  in  = new DataInputStream(socket.getInputStream());
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-            String base64PublicKey = in.readLine();
-            byte[] publicKeyBytes = Base64.getDecoder().decode(base64PublicKey);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey serverPublicKey = keyFactory.generatePublic(keySpec);
+            String base64PublicKey = in.readUTF();
+            byte[] publicKeyBytes  = Base64.getDecoder().decode(base64PublicKey);
+            PublicKey serverPublicKey = KeyFactory.getInstance("RSA")
+                                                 .generatePublic(new X509EncodedKeySpec(publicKeyBytes));
 
-            SecretKey aesKey = CryptoUtils.generateAESKey();
-            byte[] encryptedAESKey = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPublicKey);
-            out.println(Base64.getEncoder().encodeToString(encryptedAESKey));
-
+            SecretKey aesKey        = CryptoUtils.generateAESKey();
+            byte[]    encryptedKey  = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPublicKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(encryptedKey));
+            out.flush();
             System.out.println("AES key sent securely.");
 
-            //String message = "Hello Secure Server";
             String message = "GET /example";
-            byte[] encryptedMessage = CryptoUtils.aesEncrypt(message.getBytes(), aesKey);
-            out.println(Base64.getEncoder().encodeToString(encryptedMessage));
+            byte[] encryptedMsg = CryptoUtils.aesEncrypt(message.getBytes(), aesKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(encryptedMsg));
+            out.flush();
 
-            String responseEncrypted = in.readLine();
-            byte[] responseBytes = Base64.getDecoder().decode(responseEncrypted);
+            String responseEnc = in.readUTF();
+            byte[] responseBytes = Base64.getDecoder().decode(responseEnc);
             String response = new String(CryptoUtils.aesDecrypt(responseBytes, aesKey));
             System.out.println("Received from server (decrypted): " + response);
 
@@ -46,4 +42,3 @@ public class VPNClient {
         }
     }
 }
-
