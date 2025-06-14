@@ -10,32 +10,30 @@ import java.util.Base64;
 
 public class VPNClient {
     public static void main(String[] args) {
-        try (Socket socket = new Socket("localhost", 9000)) {
+        try (Socket sock = new Socket("localhost", 9000)) {
             System.out.println("Connected to VPN Server");
 
-            DataInputStream  in  = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            DataInputStream  in  = new DataInputStream(sock.getInputStream());
+            DataOutputStream out = new DataOutputStream(sock.getOutputStream());
 
-            String base64PublicKey = in.readUTF();
-            byte[] publicKeyBytes  = Base64.getDecoder().decode(base64PublicKey);
-            PublicKey serverPublicKey = KeyFactory.getInstance("RSA")
-                                                 .generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+            byte[] pubBytes = Base64.getDecoder().decode(in.readUTF());
+            PublicKey serverPub = KeyFactory.getInstance("RSA")
+                                            .generatePublic(new X509EncodedKeySpec(pubBytes));
 
-            SecretKey aesKey        = CryptoUtils.generateAESKey();
-            byte[]    encryptedKey  = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPublicKey);
-            out.writeUTF(Base64.getEncoder().encodeToString(encryptedKey));
+            SecretKey aesKey   = CryptoUtils.generateAESKey();
+            byte[]    encKey   = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPub);
+            out.writeUTF(Base64.getEncoder().encodeToString(encKey));
             out.flush();
             System.out.println("AES key sent securely.");
 
-            String message = "GET /example";
-            byte[] encryptedMsg = CryptoUtils.aesEncrypt(message.getBytes(), aesKey);
-            out.writeUTF(Base64.getEncoder().encodeToString(encryptedMsg));
+            String msg = "GET /example";
+            byte[] encMsg = CryptoUtils.aesEncrypt(msg.getBytes(), aesKey);
+            out.writeUTF(Base64.getEncoder().encodeToString(encMsg));
             out.flush();
 
-            String responseEnc = in.readUTF();
-            byte[] responseBytes = Base64.getDecoder().decode(responseEnc);
-            String response = new String(CryptoUtils.aesDecrypt(responseBytes, aesKey));
-            System.out.println("Received from server (decrypted): " + response);
+            byte[] encResp = Base64.getDecoder().decode(in.readUTF());
+            String resp = new String(CryptoUtils.aesDecrypt(encResp, aesKey));
+            System.out.println("Received from server (decrypted): " + resp);
 
         } catch (Exception e) {
             e.printStackTrace();
