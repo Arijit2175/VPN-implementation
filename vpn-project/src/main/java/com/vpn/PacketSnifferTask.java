@@ -30,3 +30,21 @@ public class PacketSnifferTask implements Runnable {
 
             PcapNetworkInterface nif = interfaces.get(interfaceIndex);
             log("Sniffing on: " + nif.getName());
+
+             int snapLen = 65536;
+            int timeout = 10;
+            PcapHandle handle = nif.openLive(snapLen, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, timeout);
+
+            PacketListener listener = packet -> {
+                String summary = packet.toString().split("\n")[0];
+                log("Captured: " + summary);
+            };
+
+            handle.loop(20, listener);  
+            handle.close();
+
+        } catch (Exception e) {
+            log("Sniffer error: " + e.getMessage());
+        }
+    }
+}
