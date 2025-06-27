@@ -36,15 +36,15 @@
     <version>3.4</version>
  </dependency>
  <dependency>
-    <groupId>org.pcap4j</groupId>
-    <artifactId>pcap4j-core</artifactId>
-    <version>1.8.2</version>
-  </dependency>
-  <dependency>
-    <groupId>org.pcap4j</groupId>
-    <artifactId>pcap4j-packetfactory-static</artifactId>
-    <version>1.8.2</version>
-  </dependency>
+  <groupId>org.pcap4j</groupId>
+  <artifactId>pcap4j-core</artifactId>
+  <version>1.8.2</version>
+</dependency>
+<dependency>
+  <groupId>org.pcap4j</groupId>
+  <artifactId>pcap4j-packetfactory-static</artifactId>
+  <version>1.8.2</version>
+</dependency>
 </dependencies>
 
 </project>
