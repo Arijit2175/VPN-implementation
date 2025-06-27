@@ -4,6 +4,9 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
+
+import org.pcap4j.packet.Packet;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -64,6 +67,7 @@ public class VPNClientGUI extends JFrame {
         new Thread(() -> {
             try {
                 VPNClientWithLogging.runClient(logArea);
+                new Thread(new PacketSnifferTask(logArea, 7)).start(); 
             } catch (Exception ex) {
                 log("❌ Error: " + ex.getMessage());
                 ex.printStackTrace();
