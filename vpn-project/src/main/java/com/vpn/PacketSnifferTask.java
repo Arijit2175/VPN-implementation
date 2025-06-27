@@ -19,3 +19,14 @@ public class PacketSnifferTask implements Runnable {
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Packet] " + msg + "\n"));
     }
+
+    public void run() {
+        try {
+            List<PcapNetworkInterface> interfaces = Pcaps.findAllDevs();
+            if (interfaceIndex < 0 || interfaceIndex >= interfaces.size()) {
+                log("Invalid network interface index.");
+                return;
+            }
+
+            PcapNetworkInterface nif = interfaces.get(interfaceIndex);
+            log("Sniffing on: " + nif.getName());
