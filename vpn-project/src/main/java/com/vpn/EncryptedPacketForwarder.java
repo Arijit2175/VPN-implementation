@@ -3,10 +3,8 @@ package com.vpn;
 import org.pcap4j.core.*;
 import org.pcap4j.packet.Packet;
 
-import javax.crypto.SecretKey;
 import javax.swing.*;
 import java.io.DataOutputStream;
-import java.net.Socket;
 import java.util.Base64;
 import java.util.List;
 
@@ -26,27 +24,29 @@ public class EncryptedPacketForwarder implements Runnable {
         try {
             List<PcapNetworkInterface> interfaces = Pcaps.findAllDevs();
             PcapNetworkInterface nif = interfaces.get(7);  
+
             log("Sniffing on: " + nif.getName());
 
             PcapHandle handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
-
             DataOutputStream out = new DataOutputStream(VPNClientWithLogging.socket.getOutputStream());
-            SecretKey aesKey = VPNClientWithLogging.aesKey;
 
             PacketListener listener = packet -> {
                 try {
-                    byte[] payload = packet.getRawData();
-                    byte[] encrypted = CryptoUtils.aesEncrypt(payload, aesKey);
-                    String encoded = Base64.getEncoder().encodeToString(encrypted);
-                    out.writeUTF(encoded);
-                    log("🔒 Sent packet (" + payload.length + " bytes)");
-                } catch (Exception e) {
-                    log("❌ Failed to send packet: " + e.getMessage());
+                    if (VPNClientWithLogging.forwardingEnabled) {
+                        byte[] raw = packet.getRawData();
+                        byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
+                        out.writeUTF(Base64.getEncoder().encodeToString(enc));
+                        out.flush();
+                        log("🔒 Sent packet (" + raw.length + " bytes)");
+                    } else {
+                        Thread.sleep(100); 
+                    }
+                } catch (Exception ex) {
+                    log("❌ Forwarding error: " + ex.getMessage());
                 }
             };
 
-             handle.loop(10, listener);  
-            handle.close();
+            handle.loop(-1, listener);
 
         } catch (Exception e) {
             log("Sniffer error: " + e.getMessage());
