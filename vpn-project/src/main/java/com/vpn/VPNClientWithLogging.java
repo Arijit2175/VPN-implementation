@@ -18,7 +18,6 @@ public class VPNClientWithLogging {
     public static void runClient(JTextArea logArea) {
         try {
             socket = new Socket("localhost", 9000);
-
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
@@ -50,6 +49,16 @@ public class VPNClientWithLogging {
         } catch (Exception ex) {
             log(logArea, "❌ " + ex.getMessage());
             ex.printStackTrace();
+        }
+    }
+
+    public static void disconnect() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            System.out.println("Error while disconnecting: " + e.getMessage());
         }
     }
 
