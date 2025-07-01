@@ -2,6 +2,7 @@ package com.vpn;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,9 @@ public class VPNClientGUI extends JFrame {
     private JTextArea logArea;
     private JButton connectButton, disconnectButton, themeToggleButton;
     private boolean isDarkMode = false;
+
+    private Thread clientThread;
+    private Thread snifferThread;
 
     private static Font emojiFont() {
         String[] names = { "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji" };
@@ -70,15 +74,28 @@ public class VPNClientGUI extends JFrame {
         connectButton.setEnabled(false);
         disconnectButton.setEnabled(true);
         log("🔌 Connecting...");
-        new Thread(() -> {
+
+        clientThread = new Thread(() -> {
             VPNClientWithLogging.runClient(logArea);
-            new Thread(new PacketSnifferTask(logArea, 7)).start();
-        }).start();
+        });
+
+        snifferThread = new Thread(new PacketSnifferTask(logArea, 7));
+
+        clientThread.start();
+        snifferThread.start();
     }
 
     private void onDisconnect(ActionEvent e) {
         VPNClientWithLogging.disconnect();
         log("🔕 Disconnected from VPN Server.");
+
+        if (clientThread != null && clientThread.isAlive()) {
+            clientThread.interrupt();
+        }
+        if (snifferThread != null && snifferThread.isAlive()) {
+            snifferThread.interrupt();
+        }
+
         connectButton.setEnabled(true);
         disconnectButton.setEnabled(false);
     }
@@ -105,8 +122,11 @@ public class VPNClientGUI extends JFrame {
 
     public static void main(String[] args) {
         System.setProperty("flatlaf.useEmoji", "true");
-        try { FlatLightLaf.setup(); }
-        catch (Exception e) { System.err.println("FlatLaf init failed: " + e); }
+        try {
+            FlatLightLaf.setup();
+        } catch (Exception e) {
+            System.err.println("FlatLaf init failed: " + e);
+        }
 
         SwingUtilities.invokeLater(() -> new VPNClientGUI().setVisible(true));
     }
