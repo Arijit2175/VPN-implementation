@@ -6,7 +6,7 @@ import java.util.Base64;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-public class EncryptedResponseReceiver {
+public class EncryptedResponseReceiver implements Runnable{
     private final JTextArea logArea;
 
     public EncryptedResponseReceiver(JTextArea logArea) {
