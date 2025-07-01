@@ -54,6 +54,16 @@ public class VPNClientWithLogging {
         }
     }
 
+    public static void disconnect() {
+    try {
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
     private static void log(JTextArea area, String msg) {
         SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
     }
