@@ -14,10 +14,12 @@ public class VPNClientWithLogging {
 
     public static SecretKey aesKey;
     public static Socket socket;
+    public static boolean forwardingEnabled = true; 
 
     public static void runClient(JTextArea logArea) {
         try {
             socket = new Socket("localhost", 9000);
+
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
@@ -25,7 +27,7 @@ public class VPNClientWithLogging {
 
             byte[] pubBytes = Base64.getDecoder().decode(in.readUTF());
             PublicKey serverPub = KeyFactory.getInstance("RSA")
-                                            .generatePublic(new X509EncodedKeySpec(pubBytes));
+                    .generatePublic(new X509EncodedKeySpec(pubBytes));
             log(logArea, "🔑 RSA public key received");
 
             aesKey = CryptoUtils.generateAESKey();
@@ -45,21 +47,10 @@ public class VPNClientWithLogging {
             log(logArea, "📥 Received: " + resp);
 
             new Thread(new EncryptedPacketForwarder(logArea)).start();
-            new Thread(new EncryptedResponseReceiver(logArea)).start();
 
         } catch (Exception ex) {
             log(logArea, "❌ " + ex.getMessage());
             ex.printStackTrace();
-        }
-    }
-
-    public static void disconnect() {
-        try {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            System.out.println("Error while disconnecting: " + e.getMessage());
         }
     }
 
