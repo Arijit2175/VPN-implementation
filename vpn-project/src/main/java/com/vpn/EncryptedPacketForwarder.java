@@ -21,3 +21,26 @@ public class EncryptedPacketForwarder implements Runnable {
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
     }
+
+    public void run() {
+        try {
+            List<PcapNetworkInterface> interfaces = Pcaps.findAllDevs();
+            PcapNetworkInterface nif = interfaces.get(7);  
+            log("Sniffing on: " + nif.getName());
+
+            PcapHandle handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
+
+            DataOutputStream out = new DataOutputStream(VPNClientWithLogging.socket.getOutputStream());
+            SecretKey aesKey = VPNClientWithLogging.aesKey;
+
+            PacketListener listener = packet -> {
+                try {
+                    byte[] payload = packet.getRawData();
+                    byte[] encrypted = CryptoUtils.aesEncrypt(payload, aesKey);
+                    String encoded = Base64.getEncoder().encodeToString(encrypted);
+                    out.writeUTF(encoded);
+                    log("🔒 Sent packet (" + payload.length + " bytes)");
+                } catch (Exception e) {
+                    log("❌ Failed to send packet: " + e.getMessage());
+                }
+            };
