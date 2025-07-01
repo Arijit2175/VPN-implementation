@@ -44,3 +44,12 @@ public class EncryptedPacketForwarder implements Runnable {
                     log("❌ Failed to send packet: " + e.getMessage());
                 }
             };
+
+             handle.loop(10, listener);  
+            handle.close();
+
+        } catch (Exception e) {
+            log("Sniffer error: " + e.getMessage());
+        }
+    }
+}
