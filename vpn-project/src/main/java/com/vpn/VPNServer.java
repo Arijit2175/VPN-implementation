@@ -49,12 +49,18 @@ public class VPNServer {
 
             while (true) {
                 try {
-                    String packetBase64 = in.readUTF();
+                    String packetBase64 = in.readUTF();  
                     byte[] encryptedBytes = Base64.getDecoder().decode(packetBase64);
                     byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
 
                     System.out.println("[Forwarded Packet] Length: " + decryptedBytes.length + " bytes");
                     System.out.println("Hex Preview: " + bytesToHexPreview(decryptedBytes));
+
+                    String dummyResponse = "ACK:" + decryptedBytes.length + " bytes";
+                    byte[] encRespBack = CryptoUtils.aesEncrypt(dummyResponse.getBytes(), aesKey);
+                    out.writeUTF(Base64.getEncoder().encodeToString(encRespBack));
+                    out.flush();
+
                 } catch (EOFException eof) {
                     System.out.println("Client disconnected.");
                     break;
