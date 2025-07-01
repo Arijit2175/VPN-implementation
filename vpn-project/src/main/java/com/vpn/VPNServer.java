@@ -48,26 +48,33 @@ public class VPNServer {
             System.out.println("Now receiving encrypted forwarded packets...");
 
             while (true) {
-                try {
-                    String packetBase64 = in.readUTF();  
-                    byte[] encryptedBytes = Base64.getDecoder().decode(packetBase64);
-                    byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
+    try {
+        String packetBase64 = in.readUTF();  
+        byte[] encryptedBytes = Base64.getDecoder().decode(packetBase64);
+        byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
 
-                    System.out.println("[Forwarded Packet] Length: " + decryptedBytes.length + " bytes");
-                    System.out.println("Hex Preview: " + bytesToHexPreview(decryptedBytes));
+        System.out.println("[Forwarded Packet] Length: " + decryptedBytes.length + " bytes");
+        System.out.println("Hex Preview: " + bytesToHexPreview(decryptedBytes));
 
-                    String dummyResponse = "ACK:" + decryptedBytes.length + " bytes";
-                    byte[] encRespBack = CryptoUtils.aesEncrypt(dummyResponse.getBytes(), aesKey);
-                    out.writeUTF(Base64.getEncoder().encodeToString(encRespBack));
-                    out.flush();
+        String dummyResponse = "ACK:" + decryptedBytes.length + " bytes";
+        byte[] encRespBack = CryptoUtils.aesEncrypt(dummyResponse.getBytes(), aesKey);
+        out.writeUTF(Base64.getEncoder().encodeToString(encRespBack));
+        out.flush();
 
-                } catch (EOFException eof) {
-                    System.out.println("Client disconnected.");
-                    break;
-                } catch (Exception ex) {
-                    System.out.println("❌ Error receiving packet: " + ex.getMessage());
-                }
-            }
+    } catch (EOFException eof) {
+        System.out.println("✅ Client disconnected cleanly.");
+        break;
+
+    } catch (IOException ioEx) {
+        System.out.println("🔌 Connection closed: " + ioEx.getMessage());
+        break;
+
+    } catch (Exception ex) {
+        System.out.println("⚠️ Unexpected error: " + ex.getMessage());
+        ex.printStackTrace();
+        break; 
+    }
+}
 
         } catch (Exception e) {
             e.printStackTrace();
