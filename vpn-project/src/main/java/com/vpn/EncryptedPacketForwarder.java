@@ -1,55 +1,53 @@
 package com.vpn;
 
-import org.pcap4j.core.*;
-import org.pcap4j.packet.Packet;
-
 import javax.swing.*;
 import java.io.DataOutputStream;
+import java.net.Socket;
 import java.util.Base64;
-import java.util.List;
 
 public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
+    private volatile boolean running = true;  
 
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
+    }
+
+    public void stop() {
+        running = false;  
     }
 
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
     }
 
+    @Override
     public void run() {
         try {
-            List<PcapNetworkInterface> interfaces = Pcaps.findAllDevs();
-            PcapNetworkInterface nif = interfaces.get(7);  
+            Socket sock = VPNClientWithLogging.socket;
+            DataOutputStream out = new DataOutputStream(sock.getOutputStream());
 
-            log("Sniffing on: " + nif.getName());
-
-            PcapHandle handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
-            DataOutputStream out = new DataOutputStream(VPNClientWithLogging.socket.getOutputStream());
-
-            PacketListener listener = packet -> {
+            PcapSniffer sniffer = new PcapSniffer(logArea, packetData -> {
                 try {
-                    if (VPNClientWithLogging.forwardingEnabled) {
-                        byte[] raw = packet.getRawData();
-                        byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
-                        out.writeUTF(Base64.getEncoder().encodeToString(enc));
-                        out.flush();
-                        log("🔒 Sent packet (" + raw.length + " bytes)");
-                    } else {
-                        Thread.sleep(100); 
+                    if (!running) return;  
+
+                    byte[] enc = CryptoUtils.aesEncrypt(packetData, VPNClientWithLogging.aesKey);
+                    String base64 = Base64.getEncoder().encodeToString(enc);
+                    out.writeUTF(base64);
+                    out.flush();
+                    log("🔒 Sent packet (" + packetData.length + " bytes)");
+                } catch (Exception e) {
+                    if (running) {
+                        log("❌ Forwarding error: " + e.getMessage());
                     }
-                } catch (Exception ex) {
-                    log("❌ Forwarding error: " + ex.getMessage());
                 }
-            };
+            });
 
-            handle.loop(-1, listener);
+            sniffer.start();
 
-        } catch (Exception e) {
-            log("Sniffer error: " + e.getMessage());
+        } catch (Exception ex) {
+            log("❌ Error: " + ex.getMessage());
         }
     }
 }
