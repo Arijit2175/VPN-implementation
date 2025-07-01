@@ -10,3 +10,14 @@ import java.net.Socket;
 import java.util.Base64;
 import java.util.List;
 
+public class EncryptedPacketForwarder implements Runnable {
+
+    private final JTextArea logArea;
+
+    public EncryptedPacketForwarder(JTextArea logArea) {
+        this.logArea = logArea;
+    }
+
+    private void log(String msg) {
+        SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
+    }
