@@ -1,3 +1,5 @@
+package com.vpn;
+
 import org.pcap4j.core.*;
 import org.pcap4j.packet.Packet;
 
@@ -11,6 +13,10 @@ public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
     private volatile boolean running = true;
+
+    public EncryptedPacketForwarder(JTextArea logArea) {
+        this.logArea = logArea;
+    }
 
     public void stop() {
         running = false;

@@ -47,6 +47,7 @@ public class VPNClientWithLogging {
             log(logArea, "📥 Received: " + resp);
 
             new Thread(new EncryptedPacketForwarder(logArea)).start();
+            new Thread(new EncryptedResponseReceiver(logArea)).start();
 
         } catch (Exception ex) {
             log(logArea, "❌ " + ex.getMessage());
@@ -55,6 +56,7 @@ public class VPNClientWithLogging {
     }
 
     public static void disconnect() {
+        forwardingEnabled = false;
     try {
         if (socket != null && !socket.isClosed()) {
             socket.close();
