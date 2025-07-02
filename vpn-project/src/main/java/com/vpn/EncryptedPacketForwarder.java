@@ -22,16 +22,15 @@ public class EncryptedPacketForwarder implements Runnable {
     }
 
     public void stop() {
-        running = false;
-
-        if (handle != null && handle.isOpen()) {
-            try {
-                handle.breakLoop();  
-            } catch (Exception e) {
-                log("⚠️ Could not break loop: " + e.getMessage());
-            }
+    running = false;
+    if (handle != null && handle.isOpen()) {
+        try {
+            handle.breakLoop();
+        } catch (Exception e) {
+            log("⚠️ Could not break loop: " + e.getMessage());
         }
     }
+}
 
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
