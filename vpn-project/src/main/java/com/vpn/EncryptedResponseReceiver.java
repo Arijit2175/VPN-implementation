@@ -2,7 +2,6 @@ package com.vpn;
 
 import javax.swing.*;
 import java.io.DataInputStream;
-import java.net.SocketException;
 import java.util.Base64;
 
 public class EncryptedResponseReceiver implements Runnable {
@@ -24,20 +23,23 @@ public class EncryptedResponseReceiver implements Runnable {
 
             while (!Thread.currentThread().isInterrupted() && VPNClientWithLogging.forwardingEnabled) {
                 try {
+                    if (VPNClientWithLogging.socket.isClosed()) break;
+
                     String encResponse = in.readUTF();  
                     byte[] decrypted = CryptoUtils.aesDecrypt(Base64.getDecoder().decode(encResponse), VPNClientWithLogging.aesKey);
                     String response = new String(decrypted);
                     log("🔓 Server said: " + response);
-                } catch (SocketException se) {
-                    log("🔌 Connection closed.");
-                    break;
+
                 } catch (Exception e) {
-                    log("❌ Error receiving server response: " + e.getMessage());
+                    if (!VPNClientWithLogging.socket.isClosed()) {
+                        log("❌ Error receiving server response: " + e.getMessage());
+                    }
                     break;
                 }
             }
-        } catch (Exception e) {
-            log("❌ Receiver failed: " + e.getMessage());
+
+        } catch (Exception ex) {
+            log("❌ Receiver thread stopped: " + ex.getMessage());
         }
     }
 }
