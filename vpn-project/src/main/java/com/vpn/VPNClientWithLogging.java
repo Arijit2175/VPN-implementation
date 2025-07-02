@@ -2,13 +2,13 @@ package com.vpn;
 
 import javax.crypto.SecretKey;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import java.io.*;
 import java.net.Socket;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import javax.swing.SwingUtilities;
 
 public class VPNClientWithLogging {
 
@@ -16,13 +16,18 @@ public class VPNClientWithLogging {
 
     public static SecretKey aesKey;
     public static Socket socket;
-    public static Thread responseThread;
     public static boolean forwardingEnabled = true;
+
+    private static Thread forwarderThread;
+    private static Thread responseThread;
+
+    private static EncryptedPacketForwarder forwarder;
+    private static EncryptedResponseReceiver receiver;
 
     public static void runClient(JTextArea logArea, String serverIp) {
         try {
             socket = new Socket(serverIp, PORT);
-
+            socket.setSoTimeout(1000); 
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
@@ -49,10 +54,14 @@ public class VPNClientWithLogging {
             String resp = new String(CryptoUtils.aesDecrypt(encResp, aesKey));
             log(logArea, "📥 Received: " + resp);
 
-            new Thread(new EncryptedPacketForwarder(logArea)).start();
-
-            responseThread = new Thread(new EncryptedResponseReceiver(logArea));
+            forwardingEnabled = true;
+            receiver = new EncryptedResponseReceiver(logArea);
+            responseThread = new Thread(receiver, "EncryptedResponseReceiver");
             responseThread.start();
+
+            forwarder = new EncryptedPacketForwarder(logArea);
+            forwarderThread = new Thread(forwarder, "EncryptedPacketForwarder");
+            forwarderThread.start();
 
         } catch (Exception ex) {
             log(logArea, "❌ " + ex.getMessage());
@@ -61,20 +70,27 @@ public class VPNClientWithLogging {
     }
 
     public static void disconnect() {
-    forwardingEnabled = false;
-    try {
+        forwardingEnabled = false;
+
+        if (forwarder != null) {
+            forwarder.stop();
+        }
+
         if (responseThread != null && responseThread.isAlive()) {
-            responseThread.interrupt();  
+            responseThread.interrupt();
+        }
+        if (forwarderThread != null && forwarderThread.isAlive()) {
+            forwarderThread.interrupt();
         }
 
-        if (socket != null && !socket.isClosed()) {
-            socket.close();  
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-    } catch (IOException e) {
-        e.printStackTrace();
     }
-}
 
     private static void log(JTextArea area, String msg) {
         SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
