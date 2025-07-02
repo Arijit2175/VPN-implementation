@@ -35,16 +35,22 @@ public class PacketSnifferTask implements Runnable {
             log("Sniffing on: " + nif.getName());
 
             handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
-            long endTime = System.currentTimeMillis() + 10000; 
+            long endTime = System.currentTimeMillis() + 10000;
 
-            while (System.currentTimeMillis() < endTime) {
+            while (System.currentTimeMillis() < endTime && !Thread.currentThread().isInterrupted()) {
                 try {
                     Packet packet = handle.getNextPacketEx();
                     if (packet == null) continue;
 
                     String summary = packet.toString().split("\n")[0];
                     log("Captured: " + summary);
+
+                    Thread.sleep(10);  
+
                 } catch (TimeoutException ignored) {
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
             }
 
