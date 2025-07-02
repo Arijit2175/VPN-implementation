@@ -26,10 +26,11 @@ public class EncryptedPacketForwarder implements Runnable {
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
     }
 
-    private final int interfaceIndex = 7; 
+    private final int interfaceIndex = 7;
 
     @Override
     public void run() {
+        PcapHandle handle = null;
         try {
             List<PcapNetworkInterface> interfaces = Pcaps.findAllDevs();
             if (interfaceIndex < 0 || interfaceIndex >= interfaces.size()) {
@@ -40,38 +41,39 @@ public class EncryptedPacketForwarder implements Runnable {
             PcapNetworkInterface nif = interfaces.get(interfaceIndex);
             log("Sniffing on: " + nif.getName());
 
-            PcapHandle handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
+            handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
 
             Socket sock = VPNClientWithLogging.socket;
             DataOutputStream out = new DataOutputStream(sock.getOutputStream());
 
-            PacketListener listener = new PacketListener() {
-                @Override
-                public void gotPacket(Packet packet) {
-                    if (!running) return;
+            PacketListener listener = packet -> {
+                if (!running || Thread.currentThread().isInterrupted()) return;
+                try {
+                    byte[] raw = packet.getRawData();
+                    byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
+                    String base64 = Base64.getEncoder().encodeToString(enc);
 
-                    try {
-                        byte[] raw = packet.getRawData();
-                        byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
-                        String base64 = Base64.getEncoder().encodeToString(enc);
+                    out.writeUTF(base64);
+                    out.flush();
 
-                        out.writeUTF(base64);
-                        out.flush();
-
-                        log("🔒 Sent packet (" + raw.length + " bytes)");
-                    } catch (Exception e) {
-                        if (running) {
-                            log("❌ Forwarding error: " + e.getMessage());
-                        }
+                    log("🔒 Sent packet (" + raw.length + " bytes)");
+                } catch (Exception e) {
+                    if (running) {
+                        log("❌ Forwarding error: " + e.getMessage());
                     }
                 }
             };
 
-            handle.loop(-1, listener);  
-            handle.close();
+            handle.loop(-1, listener);
 
         } catch (Exception ex) {
-            log("❌ Error: " + ex.getMessage());
+            if (running) {
+                log("❌ Error: " + ex.getMessage());
+            }
+        } finally {
+            if (handle != null && handle.isOpen()) {
+                handle.close();
+            }
         }
     }
 }
