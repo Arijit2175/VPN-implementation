@@ -11,14 +11,16 @@ public class VPNClientGUI extends JFrame {
 
     private JTextArea logArea;
     private JButton connectButton, disconnectButton, themeToggleButton;
-    private JTextField ipField; 
     private boolean isDarkMode = false;
 
     private Thread clientThread;
     private Thread snifferThread;
+    private Thread forwarderThread;
+
+    private EncryptedPacketForwarder forwarder;
 
     private static Font emojiFont() {
-        String[] names = { "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji" };
+        String[] names = {"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji"};
         int KEY_CP = 0x1F511;
         for (String n : names) {
             Font f = new Font(n, Font.PLAIN, 14);
@@ -34,12 +36,7 @@ public class VPNClientGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        ipField = new JTextField("127.0.0.1", 15);  
-        ipField.setFont(emojiFont());
-        topPanel.add(new JLabel("🌐 Server IP:"));
-        topPanel.add(ipField);
-
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         themeToggleButton = new JButton("🌙 Dark Mode");
         themeToggleButton.setFont(emojiFont());
         themeToggleButton.setFocusPainted(false);
@@ -81,30 +78,44 @@ public class VPNClientGUI extends JFrame {
         disconnectButton.setEnabled(true);
         log("🔌 Connecting...");
 
-        String serverIp = ipField.getText().trim();
+        String serverIP = JOptionPane.showInputDialog(this, "Enter VPN Server IP:", "127.0.0.1");
+        if (serverIP == null || serverIP.isEmpty()) {
+        log("❌ No IP provided. Aborting connection.");
+        connectButton.setEnabled(true);
+        disconnectButton.setEnabled(false);
+        return;
+       }
 
         clientThread = new Thread(() -> {
-            VPNClientWithLogging.runClient(logArea, serverIp);  
-        }, "VPN-Client-Thread");
+            VPNClientWithLogging.runClient(logArea, serverIP); 
+        });
 
-        snifferThread = new Thread(new PacketSnifferTask(logArea, 7), "Sniffer-Thread");
+        snifferThread = new Thread(new PacketSnifferTask(logArea, 7));
 
-        clientThread.setDaemon(true);
-        snifferThread.setDaemon(true);
+        forwarder = new EncryptedPacketForwarder(logArea);
+        forwarderThread = new Thread(forwarder);
 
         clientThread.start();
         snifferThread.start();
+        forwarderThread.start();
     }
 
     private void onDisconnect(ActionEvent e) {
         VPNClientWithLogging.disconnect();
         log("🔕 Disconnected from VPN Server.");
 
+        if (forwarder != null) {
+            forwarder.stop();
+        }
+
         if (clientThread != null && clientThread.isAlive()) {
             clientThread.interrupt();
         }
         if (snifferThread != null && snifferThread.isAlive()) {
             snifferThread.interrupt();
+        }
+        if (forwarderThread != null && forwarderThread.isAlive()) {
+            forwarderThread.interrupt();
         }
 
         connectButton.setEnabled(true);
