@@ -6,5 +6,4 @@ com\vpn\EncryptedPacketForwarder.class
 com\vpn\CryptoUtils.class
 com\vpn\VPNClientWithLogging.class
 com\vpn\VPNClient.class
-com\vpn\EncryptedPacketForwarder$1.class
 com\vpn\PacketSnifferTask.class
