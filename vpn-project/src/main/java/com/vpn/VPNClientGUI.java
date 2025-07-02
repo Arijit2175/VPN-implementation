@@ -75,44 +75,38 @@ public class VPNClientGUI extends JFrame {
 
     private void onConnect(ActionEvent e) {
         connectButton.setEnabled(false);
-        disconnectButton.setEnabled(true);
-        log("🔌 Connecting...");
+    disconnectButton.setEnabled(true);
+    log("🔌 Connecting...");
 
-        String serverIP = JOptionPane.showInputDialog(this, "Enter VPN Server IP:", "127.0.0.1");
-        if (serverIP == null || serverIP.isEmpty()) {
+    String serverIP = JOptionPane.showInputDialog(this, "Enter VPN Server IP:", "127.0.0.1");
+    if (serverIP == null || serverIP.trim().isEmpty()) {
         log("❌ No IP provided. Aborting connection.");
         connectButton.setEnabled(true);
         disconnectButton.setEnabled(false);
         return;
-       }
+    }
 
-        clientThread = new Thread(() -> {
-            VPNClientWithLogging.runClient(logArea, serverIP); 
-        });
+    clientThread = new Thread(() -> {
+        VPNClientWithLogging.runClient(logArea, serverIP);
+    }, "VPNClientMainThread");
 
-        snifferThread = new Thread(new PacketSnifferTask(logArea, 7));
+    snifferThread = new Thread(new PacketSnifferTask(logArea, 7), "PacketSniffer");
 
-        forwarder = new EncryptedPacketForwarder(logArea);
-        forwarderThread = new Thread(forwarder);
-
-        clientThread.setPriority(Thread.NORM_PRIORITY); 
-snifferThread.setPriority(Thread.MIN_PRIORITY); 
-forwarderThread.setPriority(Thread.MIN_PRIORITY);  
-
-clientThread.start();
-snifferThread.start();
-forwarderThread.start();
+    clientThread.start();
+    snifferThread.start();
     }
 
     private void onDisconnect(ActionEvent e) {
-    VPNClientWithLogging.disconnect();  
+    log("🔕 Disconnecting...");
+    VPNClientWithLogging.disconnect();
 
-    if (forwarder != null) forwarder.stop();
-    if (clientThread != null && clientThread.isAlive()) clientThread.interrupt();
-    if (snifferThread != null && snifferThread.isAlive()) snifferThread.interrupt();
-    if (forwarderThread != null && forwarderThread.isAlive()) forwarderThread.interrupt();
+    if (clientThread != null && clientThread.isAlive()) {
+        clientThread.interrupt();
+    }
+    if (snifferThread != null && snifferThread.isAlive()) {
+        snifferThread.interrupt();
+    }
 
-    log("🔕 Disconnected from VPN Server.");
     connectButton.setEnabled(true);
     disconnectButton.setEnabled(false);
     }
