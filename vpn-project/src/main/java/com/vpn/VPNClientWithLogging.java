@@ -62,6 +62,9 @@ public class VPNClientWithLogging {
 
     public static void disconnect() {
         forwardingEnabled = false;
+        if (responseThread != null && responseThread.isAlive()) {
+        responseThread.interrupt();
+    }
         try {
             if (socket != null && !socket.isClosed()) {
                 socket.close();
