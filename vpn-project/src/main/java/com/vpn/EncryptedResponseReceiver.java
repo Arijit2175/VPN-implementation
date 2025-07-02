@@ -1,10 +1,9 @@
 package com.vpn;
 
+import javax.swing.*;
 import java.io.DataInputStream;
+import java.net.SocketTimeoutException;
 import java.util.Base64;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import java.io.IOException;
 
 public class EncryptedResponseReceiver implements Runnable {
     private final JTextArea logArea;
@@ -17,18 +16,21 @@ public class EncryptedResponseReceiver implements Runnable {
         SwingUtilities.invokeLater(() -> logArea.append("[Response] " + msg + "\n"));
     }
 
+    @Override
     public void run() {
-        try (DataInputStream in = new DataInputStream(VPNClientWithLogging.socket.getInputStream())) {
+        try {
+            VPNClientWithLogging.socket.setSoTimeout(1000);
+
+            DataInputStream in = new DataInputStream(VPNClientWithLogging.socket.getInputStream());
+
             while (!Thread.currentThread().isInterrupted() && VPNClientWithLogging.forwardingEnabled) {
-                if (VPNClientWithLogging.socket == null || VPNClientWithLogging.socket.isClosed()) break;
-                String encResponse = in.readUTF(); 
-                byte[] decrypted = CryptoUtils.aesDecrypt(Base64.getDecoder().decode(encResponse), VPNClientWithLogging.aesKey);
-                String response = new String(decrypted);
-                log("🔓 Server said: " + response);
-            }
-        } catch (IOException ex) {
-            if (VPNClientWithLogging.forwardingEnabled) {
-                log("❌ Connection closed: " + ex.getMessage());
+                try {
+                    String encResponse = in.readUTF();
+                    byte[] decrypted = CryptoUtils.aesDecrypt(Base64.getDecoder().decode(encResponse), VPNClientWithLogging.aesKey);
+                    String response = new String(decrypted);
+                    log("🔓 Server said: " + response);
+                } catch (SocketTimeoutException ste) {
+                }
             }
         } catch (Exception e) {
             log("❌ Error receiving server response: " + e.getMessage());
