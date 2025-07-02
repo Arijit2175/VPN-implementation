@@ -66,9 +66,14 @@ public class EncryptedPacketForwarder implements Runnable {
                     String base64 = Base64.getEncoder().encodeToString(enc);
 
                     out.writeUTF(base64);
-                    out.flush();
+out.flush();
+log("🔒 Sent packet (" + raw.length + " bytes)");
 
-                    log("🔒 Sent packet (" + raw.length + " bytes)");
+try {
+    Thread.sleep(5); 
+} catch (InterruptedException ignored) {
+    Thread.currentThread().interrupt(); 
+}
                 } catch (TimeoutException ignored) {
                 } catch (Exception e) {
                     log("❌ Forwarding error: " + e.getMessage());
