@@ -85,9 +85,12 @@ public class VPNClientGUI extends JFrame {
 
         clientThread = new Thread(() -> {
             VPNClientWithLogging.runClient(logArea, serverIp);  
-        });
+        }, "VPN-Client-Thread");
 
-        snifferThread = new Thread(new PacketSnifferTask(logArea, 7));
+        snifferThread = new Thread(new PacketSnifferTask(logArea, 7), "Sniffer-Thread");
+
+        clientThread.setDaemon(true);
+        snifferThread.setDaemon(true);
 
         clientThread.start();
         snifferThread.start();
