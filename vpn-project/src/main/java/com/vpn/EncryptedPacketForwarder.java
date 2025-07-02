@@ -13,9 +13,14 @@ public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
     private final int interfaceIndex = 7;
+    private volatile boolean running = true;  
 
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
+    }
+
+    public void stop() {
+        running = false;
     }
 
     private void log(String msg) {
@@ -41,7 +46,8 @@ public class EncryptedPacketForwarder implements Runnable {
             handle.loop(-1, new PacketListener() {
                 @Override
                 public void gotPacket(Packet packet) {
-                    if (!VPNClientWithLogging.forwardingEnabled || Thread.currentThread().isInterrupted()) return;
+                    if (!running || !VPNClientWithLogging.forwardingEnabled || Thread.currentThread().isInterrupted())
+                        return;
 
                     try {
                         byte[] raw = packet.getRawData();
