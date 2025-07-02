@@ -20,6 +20,7 @@ public class EncryptedResponseReceiver implements Runnable {
     public void run() {
         try (DataInputStream in = new DataInputStream(VPNClientWithLogging.socket.getInputStream())) {
             while (!Thread.currentThread().isInterrupted() && VPNClientWithLogging.forwardingEnabled) {
+                if (VPNClientWithLogging.socket == null || VPNClientWithLogging.socket.isClosed()) break;
                 String encResponse = in.readUTF(); 
                 byte[] decrypted = CryptoUtils.aesDecrypt(Base64.getDecoder().decode(encResponse), VPNClientWithLogging.aesKey);
                 String response = new String(decrypted);
