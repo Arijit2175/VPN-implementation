@@ -12,13 +12,16 @@ import javax.swing.SwingUtilities;
 
 public class VPNClientWithLogging {
 
+    private static final int PORT = 9000;
+
     public static SecretKey aesKey;
     public static Socket socket;
     public static boolean forwardingEnabled = true; 
 
-    public static void runClient(JTextArea logArea) {
+    public static void runClient(JTextArea logArea, String serverIp) {
         try {
-            socket = new Socket("localhost", 9000);
+            socket = new Socket(serverIp, PORT);
+            //socket = new Socket("localhost", 9000);
 
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
