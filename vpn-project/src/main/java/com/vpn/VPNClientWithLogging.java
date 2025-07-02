@@ -16,12 +16,12 @@ public class VPNClientWithLogging {
 
     public static SecretKey aesKey;
     public static Socket socket;
-    public static boolean forwardingEnabled = true; 
+    public static Thread responseThread;
+    public static boolean forwardingEnabled = true;
 
     public static void runClient(JTextArea logArea, String serverIp) {
         try {
             socket = new Socket(serverIp, PORT);
-            //socket = new Socket("localhost", 9000);
 
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -50,7 +50,9 @@ public class VPNClientWithLogging {
             log(logArea, "📥 Received: " + resp);
 
             new Thread(new EncryptedPacketForwarder(logArea)).start();
-            new Thread(new EncryptedResponseReceiver(logArea)).start();
+
+            responseThread = new Thread(new EncryptedResponseReceiver(logArea));
+            responseThread.start();
 
         } catch (Exception ex) {
             log(logArea, "❌ " + ex.getMessage());
@@ -60,14 +62,14 @@ public class VPNClientWithLogging {
 
     public static void disconnect() {
         forwardingEnabled = false;
-    try {
-        if (socket != null && !socket.isClosed()) {
-            socket.close();
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
     }
-}
 
     private static void log(JTextArea area, String msg) {
         SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
