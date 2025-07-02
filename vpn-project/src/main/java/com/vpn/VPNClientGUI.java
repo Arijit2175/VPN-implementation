@@ -11,6 +11,7 @@ public class VPNClientGUI extends JFrame {
 
     private JTextArea logArea;
     private JButton connectButton, disconnectButton, themeToggleButton;
+    private JTextField ipField; 
     private boolean isDarkMode = false;
 
     private Thread clientThread;
@@ -33,7 +34,12 @@ public class VPNClientGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        ipField = new JTextField("127.0.0.1", 15);  
+        ipField.setFont(emojiFont());
+        topPanel.add(new JLabel("🌐 Server IP:"));
+        topPanel.add(ipField);
+
         themeToggleButton = new JButton("🌙 Dark Mode");
         themeToggleButton.setFont(emojiFont());
         themeToggleButton.setFocusPainted(false);
@@ -75,8 +81,10 @@ public class VPNClientGUI extends JFrame {
         disconnectButton.setEnabled(true);
         log("🔌 Connecting...");
 
+        String serverIp = ipField.getText().trim();
+
         clientThread = new Thread(() -> {
-            VPNClientWithLogging.runClient(logArea);
+            VPNClientWithLogging.runClient(logArea, serverIp);  
         });
 
         snifferThread = new Thread(new PacketSnifferTask(logArea, 7));
