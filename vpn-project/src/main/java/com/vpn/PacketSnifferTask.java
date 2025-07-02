@@ -5,6 +5,7 @@ import org.pcap4j.packet.Packet;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class PacketSnifferTask implements Runnable {
 
@@ -33,23 +34,26 @@ public class PacketSnifferTask implements Runnable {
             PcapNetworkInterface nif = interfaces.get(interfaceIndex);
             log("Sniffing on: " + nif.getName());
 
-            int snapLen = 65536;
-            int timeout = 10;
-            handle = nif.openLive(snapLen, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, timeout);
+            handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
+            long endTime = System.currentTimeMillis() + 10000; 
 
-            PacketListener listener = packet -> {
-                if (Thread.currentThread().isInterrupted()) return;
-                String summary = packet.toString().split("\n")[0];
-                log("Captured: " + summary);
-            };
+            while (System.currentTimeMillis() < endTime) {
+                try {
+                    Packet packet = handle.getNextPacketEx();
+                    if (packet == null) continue;
 
-            handle.loop(-1, listener);
+                    String summary = packet.toString().split("\n")[0];
+                    log("Captured: " + summary);
+                } catch (TimeoutException ignored) {
+                }
+            }
 
         } catch (Exception e) {
             log("Sniffer error: " + e.getMessage());
         } finally {
             if (handle != null && handle.isOpen()) {
                 handle.close();
+                log("🔚 Sniffer stopped.");
             }
         }
     }
