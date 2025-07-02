@@ -5,28 +5,22 @@ import org.pcap4j.packet.Packet;
 
 import javax.swing.*;
 import java.io.DataOutputStream;
-import java.net.Socket;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
 public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
-    private volatile boolean running = true;
+    private final int interfaceIndex = 7;
 
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
     }
 
-    public void stop() {
-        running = false;
-    }
-
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
     }
-
-    private final int interfaceIndex = 7;
 
     @Override
     public void run() {
@@ -42,37 +36,43 @@ public class EncryptedPacketForwarder implements Runnable {
             log("Sniffing on: " + nif.getName());
 
             handle = nif.openLive(65536, PcapNetworkInterface.PromiscuousMode.PROMISCUOUS, 10);
+            DataOutputStream out = new DataOutputStream(VPNClientWithLogging.socket.getOutputStream());
 
-            Socket sock = VPNClientWithLogging.socket;
-            DataOutputStream out = new DataOutputStream(sock.getOutputStream());
+            handle.loop(-1, new PacketListener() {
+                @Override
+                public void gotPacket(Packet packet) {
+                    if (!VPNClientWithLogging.forwardingEnabled || Thread.currentThread().isInterrupted()) return;
 
-            PacketListener listener = packet -> {
-                if (!running || Thread.currentThread().isInterrupted()) return;
-                try {
-                    byte[] raw = packet.getRawData();
-                    byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
-                    String base64 = Base64.getEncoder().encodeToString(enc);
+                    try {
+                        byte[] raw = packet.getRawData();
+                        byte[] enc = CryptoUtils.aesEncrypt(raw, VPNClientWithLogging.aesKey);
+                        String base64 = Base64.getEncoder().encodeToString(enc);
 
-                    out.writeUTF(base64);
-                    out.flush();
+                        out.writeUTF(base64);
+                        out.flush();
 
-                    log("🔒 Sent packet (" + raw.length + " bytes)");
-                } catch (Exception e) {
-                    if (running) {
-                        log("❌ Forwarding error: " + e.getMessage());
+                        log("🔒 Sent packet (" + raw.length + " bytes)");
+                    } catch (IOException e) {
+                        if (VPNClientWithLogging.forwardingEnabled) {
+                            log("❌ Forwarding error: " + e.getMessage());
+                        }
+                    } catch (Exception e) {
+                        log("❌ Unexpected encryption error: " + e.getMessage());
                     }
                 }
-            };
-
-            handle.loop(-1, listener);
+            });
 
         } catch (Exception ex) {
-            if (running) {
+            if (VPNClientWithLogging.forwardingEnabled) {
                 log("❌ Error: " + ex.getMessage());
             }
         } finally {
             if (handle != null && handle.isOpen()) {
-                handle.close();
+                try {
+                    handle.close();
+                } catch (Exception e) {
+                    log("⚠️ Failed to close PcapHandle: " + e.getMessage());
+                }
             }
         }
     }
