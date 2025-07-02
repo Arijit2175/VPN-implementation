@@ -7,13 +7,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.*;
 import java.util.Base64;
+import java.net.*;
 
 public class VPNServer {
     private static final int PORT = 9000;
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("VPN Server started on port " + PORT);
+        try (ServerSocket serverSocket = new ServerSocket(PORT, 0, InetAddress.getByName("0.0.0.0"))) {
+            System.out.println("VPN Server started on all interfaces, port " + PORT);
 
             Socket client = serverSocket.accept();
             System.out.println("Client connected: " + client.getInetAddress());
