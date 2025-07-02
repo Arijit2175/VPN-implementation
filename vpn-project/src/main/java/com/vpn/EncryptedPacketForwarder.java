@@ -16,6 +16,7 @@ public class EncryptedPacketForwarder implements Runnable {
     private final int interfaceIndex = 7;
     private volatile boolean running = true;
     private PcapHandle handle;
+    private int packetCounter = 0;
 
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
@@ -34,7 +35,10 @@ public class EncryptedPacketForwarder implements Runnable {
     }
 
     private void log(String msg) {
+        packetCounter++;
+    if (packetCounter % 10 == 0) {  
         SwingUtilities.invokeLater(() -> logArea.append("[Forwarder] " + msg + "\n"));
+    }
     }
 
     @Override
