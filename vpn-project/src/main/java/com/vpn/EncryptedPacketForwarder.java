@@ -13,6 +13,7 @@ public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
     private final int interfaceIndex = 7;
+    private PcapHandle handle;
     private volatile boolean running = true;  
 
     public EncryptedPacketForwarder(JTextArea logArea) {
@@ -20,7 +21,13 @@ public class EncryptedPacketForwarder implements Runnable {
     }
 
     public void stop() {
-        running = false;
+         if (handle != null && handle.isOpen()) {
+        try {
+            handle.breakLoop(); 
+        } catch (Exception e) {
+            log("⚠️ Could not break loop: " + e.getMessage());
+        }
+    }
     }
 
     private void log(String msg) {
