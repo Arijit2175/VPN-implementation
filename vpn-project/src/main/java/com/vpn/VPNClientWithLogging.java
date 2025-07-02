@@ -61,18 +61,20 @@ public class VPNClientWithLogging {
     }
 
     public static void disconnect() {
-        forwardingEnabled = false;
+    forwardingEnabled = false;
+    try {
         if (responseThread != null && responseThread.isAlive()) {
-        responseThread.interrupt();
-    }
-        try {
-            if (socket != null && !socket.isClosed()) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            responseThread.interrupt();  
         }
+
+        if (socket != null && !socket.isClosed()) {
+            socket.close();  
+        }
+
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
 
     private static void log(JTextArea area, String msg) {
         SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
