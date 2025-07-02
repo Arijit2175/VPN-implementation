@@ -95,9 +95,13 @@ public class VPNClientGUI extends JFrame {
         forwarder = new EncryptedPacketForwarder(logArea);
         forwarderThread = new Thread(forwarder);
 
-        clientThread.start();
-        snifferThread.start();
-        forwarderThread.start();
+        clientThread.setPriority(Thread.NORM_PRIORITY); 
+snifferThread.setPriority(Thread.MIN_PRIORITY); 
+forwarderThread.setPriority(Thread.MIN_PRIORITY);  
+
+clientThread.start();
+snifferThread.start();
+forwarderThread.start();
     }
 
     private void onDisconnect(ActionEvent e) {
