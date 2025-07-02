@@ -18,28 +18,26 @@ public class EncryptedResponseReceiver implements Runnable {
 
     @Override
     public void run() {
-        try {
-            DataInputStream in = new DataInputStream(VPNClientWithLogging.socket.getInputStream());
-
-            while (!Thread.currentThread().isInterrupted() && VPNClientWithLogging.forwardingEnabled) {
-                try {
-                    if (VPNClientWithLogging.socket.isClosed()) break;
-
-                    String encResponse = in.readUTF();  // blocking call
-                    byte[] decrypted = CryptoUtils.aesDecrypt(Base64.getDecoder().decode(encResponse), VPNClientWithLogging.aesKey);
-                    String response = new String(decrypted);
-                    log("🔓 Server said: " + response);
-                } catch (IOException e) {
-                    if (!VPNClientWithLogging.socket.isClosed()) {
-                        log("❌ Error receiving server response: " + e.getMessage());
-                    }
-                    break; // exit loop on error
-                } catch (Exception e) {
-                    log("❌ Decryption error: " + e.getMessage());
-                }
+    try (DataInputStream in = new DataInputStream(VPNClientWithLogging.socket.getInputStream())) {
+        while (!Thread.currentThread().isInterrupted() && VPNClientWithLogging.forwardingEnabled) {
+            try {
+                String encResponse = in.readUTF();  // blocks here
+                byte[] decrypted = CryptoUtils.aesDecrypt(
+                    Base64.getDecoder().decode(encResponse),
+                    VPNClientWithLogging.aesKey
+                );
+                String response = new String(decrypted);
+                log("🔓 Server said: " + response);
+            } catch (IOException io) {
+                log("❌ Connection closed by server.");
+                break;
+            } catch (Exception e) {
+                log("❌ Error decrypting: " + e.getMessage());
+                break;
             }
-        } catch (IOException e) {
-            log("❌ Stream error: " + e.getMessage());
         }
+    } catch (IOException ioEx) {
+        log("❌ Failed to read from socket: " + ioEx.getMessage());
     }
+}
 }
