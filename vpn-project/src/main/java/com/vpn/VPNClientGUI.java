@@ -101,25 +101,29 @@ public class VPNClientGUI extends JFrame {
     }
 
     private void onDisconnect(ActionEvent e) {
-        VPNClientWithLogging.disconnect();
-        log("🔕 Disconnected from VPN Server.");
+        VPNClientWithLogging.disconnect();  
+    log("🔕 Disconnected from VPN Server.");
 
-        if (forwarder != null) {
-            forwarder.stop();
-        }
+    if (forwarder != null) forwarder.stop();
 
-        if (clientThread != null && clientThread.isAlive()) {
-            clientThread.interrupt();
-        }
-        if (snifferThread != null && snifferThread.isAlive()) {
-            snifferThread.interrupt();
-        }
-        if (forwarderThread != null && forwarderThread.isAlive()) {
-            forwarderThread.interrupt();
-        }
+    if (forwarderThread != null && forwarderThread.isAlive()) {
+        forwarderThread.interrupt();
+    }
 
-        connectButton.setEnabled(true);
-        disconnectButton.setEnabled(false);
+    if (VPNClientWithLogging.responseThread != null && VPNClientWithLogging.responseThread.isAlive()) {
+        VPNClientWithLogging.responseThread.interrupt();
+    }
+
+    if (snifferThread != null && snifferThread.isAlive()) {
+        snifferThread.interrupt();
+    }
+
+    if (clientThread != null && clientThread.isAlive()) {
+        clientThread.interrupt();
+    }
+
+    connectButton.setEnabled(true);
+    disconnectButton.setEnabled(false);
     }
 
     private void toggleTheme(ActionEvent e) {
