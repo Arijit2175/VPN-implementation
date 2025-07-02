@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class EncryptedPacketForwarder implements Runnable {
 
