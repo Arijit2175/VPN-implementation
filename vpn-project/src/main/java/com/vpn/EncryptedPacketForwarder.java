@@ -13,8 +13,9 @@ public class EncryptedPacketForwarder implements Runnable {
 
     private final JTextArea logArea;
     private final int interfaceIndex = 7;
-    private PcapHandle handle;
     private volatile boolean running = true;
+
+    private PcapHandle handle;  
 
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
@@ -22,9 +23,10 @@ public class EncryptedPacketForwarder implements Runnable {
 
     public void stop() {
         running = false;
+
         if (handle != null && handle.isOpen()) {
             try {
-                handle.breakLoop();
+                handle.breakLoop();  
             } catch (Exception e) {
                 log("⚠️ Could not break loop: " + e.getMessage());
             }
@@ -53,9 +55,8 @@ public class EncryptedPacketForwarder implements Runnable {
             handle.loop(-1, new PacketListener() {
                 @Override
                 public void gotPacket(Packet packet) {
-                    if (!running || !VPNClientWithLogging.forwardingEnabled || Thread.currentThread().isInterrupted()) {
+                    if (!running || !VPNClientWithLogging.forwardingEnabled || Thread.currentThread().isInterrupted())
                         return;
-                    }
 
                     try {
                         byte[] raw = packet.getRawData();
