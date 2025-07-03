@@ -119,3 +119,11 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 
 ---
 
+## 📚 Dependencies
+
+| Library        | Description                           | Version | Source / Link                                      |
+| -------------- | ------------------------------------- | ------- | -------------------------------------------------- |
+| **Pcap4J**     | Java packet capturing library         | 1.8.2   | [pcap4j.org](https://www.pcap4j.org/)              |
+| **FlatLaf**    | Modern Look-and-Feel for Swing        | 3.2     | [GitHub](https://github.com/JFormDesigner/FlatLaf) |
+| **JFreeChart** | Charting library for real-time graphs | 1.5.3   | [jfree.org](https://www.jfree.org/jfreechart/)     |
+
