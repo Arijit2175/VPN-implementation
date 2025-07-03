@@ -140,12 +140,6 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 
 ## 📚 References
 
--Absolutely! Here's your **📚 References** section in the same clean format for your VPN implementation project:
-
----
-
-## 📚 References
-
 - * [VPN - How Virtual Private Networks Work](https://www.cloudflare.com/learning/network-layer/what-is-a-vpn/)
 - * [Pcap4J Official Site](https://www.pcap4j.org/) – Used for low-level packet capture in Java
 - * [Java Cryptography Architecture (JCA)](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) – Used for AES & RSA encryption
