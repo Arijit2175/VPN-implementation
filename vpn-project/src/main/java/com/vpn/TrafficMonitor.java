@@ -9,3 +9,7 @@ import org.jfree.data.xy.XYDataset;
 import javax.swing.*;
 import java.awt.*;
 
+public class TrafficMonitor extends JPanel {
+    private final TimeSeries trafficSeries;
+
+    public TrafficMonitor(String title) {
