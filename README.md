@@ -106,5 +106,11 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNServer"
 mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 ```
 
+- Enter the **VPN Server IP** (e.g., `127.0.0.1` or LAN IP).
+- Click **Connect** to start encrypted tunneling and traffic logging.
+- Click **Disconnect** to stop forwarding and shut down cleanly.
+
+---
+
 **Note** - The project should be run from the root folder that is **vpn-project**.
 
