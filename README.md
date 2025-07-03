@@ -49,3 +49,16 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ---
 
+## 🛠️ Technology Stack
+
+| Component         | Technology         |
+|------------------|--------------------|
+| Programming       | Java 17+           |
+| Packet Capture    | [Pcap4J](https://www.pcap4j.org/) |
+| Encryption        | Java AES, RSA APIs |
+| Graphing          | [JFreeChart](https://www.jfree.org/jfreechart/) |
+| UI Framework      | Java Swing + FlatLaf |
+| Threads/IO        | Java Concurrency, Sockets |
+
+---
+
