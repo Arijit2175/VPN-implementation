@@ -4,3 +4,22 @@ This project is a simplified educational implementation of how VPN (Virtual Priv
 
 ---
 
+## 💡 Purpose & Learning Goals
+
+This project is **not a production-grade VPN**, but a conceptual prototype to understand the **inner workings of VPN technology**:
+
+- How secure tunnels are created
+- How encryption secures network traffic
+- How data packets are captured and forwarded
+- How symmetric (AES) and asymmetric (RSA) encryption collaborate
+- How GUI-based tools can monitor and control VPN flows
+
+It's ideal for students, hobbyists, and developers learning about:
+
+- Network programming
+- Encrypted communication
+- Packet sniffing and forwarding
+- Real-time monitoring interfaces
+
+---
+
