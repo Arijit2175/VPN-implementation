@@ -36,3 +36,16 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ---
 
+## 🖼️ GUI Highlights
+
+### Dark Mode  
+![dark mode](assets/gui_dark.png)
+
+### Light Mode  
+![light mode](assets/gui_light.png)
+
+### Traffic Monitor  
+![graph](assets/traffic_graph.png)
+
+---
+
