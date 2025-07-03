@@ -13,16 +13,19 @@ public class PacketSnifferTask implements Runnable {
     private final int interfaceIndex;
     private final TrafficMonitor monitor;
 
+    // Constructor to initialize the sniffer with a JTextArea for logging, interface index, and traffic monitor
     public PacketSnifferTask(JTextArea logArea, int interfaceIndex, TrafficMonitor monitor) {
     this.logArea = logArea;
     this.interfaceIndex = interfaceIndex;
     this.monitor = monitor;
 }
 
+// Method to stop the sniffer thread
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Packet] " + msg + "\n"));
     }
 
+    // Main run method to capture packets from the specified network interface
     @Override
     public void run() {
         PcapHandle handle = null;
