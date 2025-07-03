@@ -85,13 +85,14 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ```
 com.vpn/
-├── **VPNClientGUI.java** # Main GUI with buttons, logs, and graph
-├── **VPNClientWithLogging.java** # Main client connection & crypto logic
-├── **VPNServer.java # Receives** and decrypts packets
-├── **CryptoUtils.java** # AES/RSA encryption & decryption
-├── **EncryptedPacketForwarder.java** # Forwards packets securely
-├── **PacketSnifferTask.java** # Captures and logs packets
-├── **TrafficMonitor.java** # Displays real-time traffic
+├── VPNClientGUI.java  (Main GUI with buttons, logs, and graph)
+├── VPNClientWithLogging.java (Main client connection & crypto logic)
+├── VPNServer.java (Receives and decrypts packets)
+├── CryptoUtils.java (AES/RSA encryption & decryption)
+├── EncryptedPacketForwarder.java (Forwards packets securely)
+├── PacketSnifferTask.java (Captures and logs packets)
+├── TrafficMonitor.java (Displays real-time traffic)
+├── ListInterface.java (Displays all interfaces on port)
 ```
 
 ---
