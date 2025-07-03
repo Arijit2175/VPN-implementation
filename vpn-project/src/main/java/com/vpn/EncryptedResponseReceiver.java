@@ -10,14 +10,17 @@ public class EncryptedResponseReceiver implements Runnable {
 
     private final JTextArea logArea;
 
+    // Constructor to initialize the receiver with a JTextArea for logging
     public EncryptedResponseReceiver(JTextArea logArea) {
         this.logArea = logArea;
     }
 
+    // Log messages to the JTextArea in a thread-safe manner
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Response] " + msg + "\n"));
     }
 
+    // Main run method to receive and decrypt responses from the VPN server
     @Override
     public void run() {
         try {
