@@ -83,6 +83,7 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ## 📦 Project Structure
 
+```
 com.vpn/
 ├── **VPNClientGUI.java** # Main GUI with buttons, logs, and graph
 ├── **VPNClientWithLogging.java** # Main client connection & crypto logic
@@ -91,17 +92,20 @@ com.vpn/
 ├── **EncryptedPacketForwarder.java** # Forwards packets securely
 ├── **PacketSnifferTask.java** # Captures and logs packets
 ├── **TrafficMonitor.java** # Displays real-time traffic
+```
 
 ---
 
 ## 🚀 Usage
 
 ### 1. Start the VPN Server (on remote or localhost)
+
 ```
 mvn exec:java -Dexec.mainClass="com.vpn.VPNServer"
 ```
 
 ### 2. Launch the Client GUI
+
 ```
 mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 ```
@@ -110,7 +114,7 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 - Click **Connect** to start encrypted tunneling and traffic logging.
 - Click **Disconnect** to stop forwarding and shut down cleanly.
 
----
-
 **Note** - The project should be run from the root folder that is **vpn-project**.
+
+---
 
