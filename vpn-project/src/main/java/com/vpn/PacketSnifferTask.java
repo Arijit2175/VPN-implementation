@@ -47,7 +47,7 @@ public class PacketSnifferTask implements Runnable {
                     String summary = packet.toString().split("\n")[0];
                     log("Captured: " + summary);
 
-                    monitor.updateTraffic(packet.length());
+                    monitor.updateTraffic(packet.getRawData().length);
 
                     Thread.sleep(10);  
 

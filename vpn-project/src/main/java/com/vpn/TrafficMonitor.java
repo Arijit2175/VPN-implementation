@@ -23,6 +23,8 @@ public class TrafficMonitor extends JPanel {
         ChartPanel panel = new ChartPanel(chart);
         setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
+        Timer timer = new Timer(500, e -> repaint());
+    timer.start();
     }
 
     public void updateTraffic(long bytes) {
