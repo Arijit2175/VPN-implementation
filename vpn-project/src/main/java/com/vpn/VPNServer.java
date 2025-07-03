@@ -16,12 +16,14 @@ public class VPNServer {
         try (ServerSocket serverSocket = new ServerSocket(PORT, 0, InetAddress.getByName("0.0.0.0"))) {
             System.out.println("VPN Server started on all interfaces, port " + PORT);
 
+            // Wait for a client to connect
             Socket client = serverSocket.accept();
             System.out.println("Client connected: " + client.getInetAddress());
 
             DataInputStream in = new DataInputStream(client.getInputStream());
             DataOutputStream out = new DataOutputStream(client.getOutputStream());
 
+            // Generate RSA key pair for secure key exchange
             KeyPair rsaPair = CryptoUtils.generateRSAKeyPair();
             PublicKey pubKey = rsaPair.getPublic();
             PrivateKey priv = rsaPair.getPrivate();
@@ -29,11 +31,13 @@ public class VPNServer {
             out.writeUTF(Base64.getEncoder().encodeToString(pubKey.getEncoded()));
             out.flush();
 
+            // Receive encrypted AES key from client
             byte[] encKeyBytes = Base64.getDecoder().decode(in.readUTF());
             byte[] aesBytes = CryptoUtils.rsaDecrypt(encKeyBytes, priv);
             SecretKey aesKey = new SecretKeySpec(aesBytes, "AES");
             System.out.println("AES key established securely.");
 
+            // Receive and decrypt the initial request
             byte[] encReq = Base64.getDecoder().decode(in.readUTF());
             String request = new String(CryptoUtils.aesDecrypt(encReq, aesKey));
             System.out.println("Received (decrypted): " + request);
@@ -50,6 +54,7 @@ public class VPNServer {
 
             while (true) {
     try {
+        // Read the encrypted packet from the client
         String packetBase64 = in.readUTF();  
         byte[] encryptedBytes = Base64.getDecoder().decode(packetBase64);
         byte[] decryptedBytes = CryptoUtils.aesDecrypt(encryptedBytes, aesKey);
@@ -57,6 +62,7 @@ public class VPNServer {
         System.out.println("[Forwarded Packet] Length: " + decryptedBytes.length + " bytes");
         System.out.println("Hex Preview: " + bytesToHexPreview(decryptedBytes));
 
+        // Here you would normally process the decrypted packet
         String dummyResponse = "ACK:" + decryptedBytes.length + " bytes";
         byte[] encRespBack = CryptoUtils.aesEncrypt(dummyResponse.getBytes(), aesKey);
         out.writeUTF(Base64.getEncoder().encodeToString(encRespBack));
@@ -82,6 +88,7 @@ public class VPNServer {
         }
     }
 
+    // Converts byte array to hex string preview
     private static String bytesToHexPreview(byte[] data) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Math.min(data.length, 16); i++) {
