@@ -11,11 +11,13 @@ public class PacketSnifferTask implements Runnable {
 
     private final JTextArea logArea;
     private final int interfaceIndex;
+    private final TrafficMonitor monitor;
 
-    public PacketSnifferTask(JTextArea logArea, int interfaceIndex) {
-        this.logArea = logArea;
-        this.interfaceIndex = interfaceIndex;
-    }
+    public PacketSnifferTask(JTextArea logArea, int interfaceIndex, TrafficMonitor monitor) {
+    this.logArea = logArea;
+    this.interfaceIndex = interfaceIndex;
+    this.monitor = monitor;
+}
 
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> logArea.append("[Packet] " + msg + "\n"));
@@ -44,6 +46,8 @@ public class PacketSnifferTask implements Runnable {
 
                     String summary = packet.toString().split("\n")[0];
                     log("Captured: " + summary);
+
+                    monitor.updateTraffic(packet.length());
 
                     Thread.sleep(10);  
 
