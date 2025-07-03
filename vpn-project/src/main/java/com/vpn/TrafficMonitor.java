@@ -12,6 +12,7 @@ import java.awt.*;
 public class TrafficMonitor extends JPanel {
     private final TimeSeries trafficSeries;
 
+    // Constructor to initialize the traffic monitor with a title
     public TrafficMonitor(String title) {
         this.trafficSeries = new TimeSeries("Bytes/sec");
         TimeSeriesCollection dataset = new TimeSeriesCollection(trafficSeries);
@@ -27,6 +28,7 @@ public class TrafficMonitor extends JPanel {
     timer.start();
     }
 
+    // Method to update the traffic data
     public void updateTraffic(long bytes) {
         trafficSeries.addOrUpdate(new Millisecond(), bytes);
     }
