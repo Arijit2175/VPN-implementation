@@ -39,13 +39,13 @@ Some of the main concepts involved are:
 ## 🖼️ GUI Highlights
 
 ### Dark Mode  
-![dark mode](assets/gui_dark.png)
+![dark mode](assets/dark.png)
 
 ### Light Mode  
-![light mode](assets/gui_light.png)
+![light mode](assets/white.png)
 
 ### Traffic Monitor  
-![graph](assets/traffic_graph.png)
+![graph](assets/graph.png)
 
 ---
 
