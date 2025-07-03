@@ -7,12 +7,14 @@ import java.util.List;
 
 public class ListInterfaces {
     public static void main(String[] args) throws Exception {
+        // List all available network interfaces
         List<PcapNetworkInterface> allDevs = Pcaps.findAllDevs();
         if (allDevs == null || allDevs.isEmpty()) {
             System.out.println("❌ No network interfaces found. Try running as administrator.");
             return;
         }
 
+        // Print the list of interfaces
         int index = 0;
         for (PcapNetworkInterface dev : allDevs) {
             System.out.println("[" + index + "] " + dev.getName() + " - " + dev.getDescription());
