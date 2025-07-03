@@ -18,10 +18,12 @@ public class EncryptedPacketForwarder implements Runnable {
     private PcapHandle handle;
     private int packetCounter = 0;
 
+    // Constructor to initialize the forwarder with a JTextArea for logging
     public EncryptedPacketForwarder(JTextArea logArea) {
         this.logArea = logArea;
     }
 
+    // Method to start the packet forwarding thread
     public void stop() {
         running = false;
         if (handle != null && handle.isOpen()) {
@@ -34,6 +36,7 @@ public class EncryptedPacketForwarder implements Runnable {
         }
     }
 
+    // Log messages to the JTextArea in a thread-safe manner
     private void log(String msg) {
         packetCounter++;
     if (packetCounter % 10 == 0) {  
@@ -41,6 +44,7 @@ public class EncryptedPacketForwarder implements Runnable {
     }
     }
 
+    // Main run method to capture packets and forward them securely
     @Override
     public void run() {
         try {
