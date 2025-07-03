@@ -147,8 +147,6 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 - [JFreeChart Documentation](https://www.jfree.org/jfreechart/) – For implementing traffic graph visualization
 - [Java Socket Programming Guide](https://docs.oracle.com/javase/tutorial/networking/sockets/) – For encrypted client-server communication
 
----
-
 <br>
 
 **👨‍💻 Developed by** - @Arijit2175
