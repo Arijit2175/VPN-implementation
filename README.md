@@ -62,3 +62,22 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ---
 
+## 🚀 How It Works
+
+1. **Start the server**:
+   - Listens for incoming VPN clients
+   - Sends its RSA public key
+   - Receives AES key (encrypted with RSA)
+   - Decrypts and uses AES to receive and log packets
+
+2. **Start the GUI client**:
+   - Prompts for server IP
+   - Connects to server and retrieves RSA public key
+   - Sends AES key securely
+   - Starts:
+     - Packet sniffer (logs packets)
+     - Packet forwarder (sends packets securely)
+     - GUI traffic monitor
+
+---
+
