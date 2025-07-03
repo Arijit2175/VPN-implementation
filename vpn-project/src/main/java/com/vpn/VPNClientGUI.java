@@ -16,6 +16,7 @@ public class VPNClientGUI extends JFrame {
     private Thread clientThread;
     private Thread snifferThread;
     private Thread forwarderThread;
+    private TrafficMonitor trafficMonitor;
 
     private EncryptedPacketForwarder forwarder;
 
@@ -51,6 +52,10 @@ public class VPNClientGUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(logArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Encrypted VPN Logs"));
         add(scrollPane, BorderLayout.CENTER);
+
+        trafficMonitor = new TrafficMonitor("Live VPN Traffic");
+trafficMonitor.setPreferredSize(new Dimension(300, 200));
+add(trafficMonitor, BorderLayout.EAST);
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         connectButton = new JButton("🔌 Connect");
@@ -90,7 +95,7 @@ public class VPNClientGUI extends JFrame {
         VPNClientWithLogging.runClient(logArea, serverIP);
     }, "VPNClientMainThread");
 
-    snifferThread = new Thread(new PacketSnifferTask(logArea, 7), "PacketSniffer");
+    snifferThread = new Thread(new PacketSnifferTask(logArea, 7, trafficMonitor), "PacketSniffer");
 
     clientThread.start();
     snifferThread.start();
