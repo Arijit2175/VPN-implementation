@@ -23,3 +23,16 @@ It's ideal for students, hobbyists, and developers learning about:
 
 ---
 
+## ⚙️ Features
+
+- 🔐 AES encryption for packet data
+- 🔑 RSA public key exchange for secure AES delivery
+- 🌐 Socket-based tunneling between client and server
+- 🕵️ Packet sniffing and logging via Pcap4J
+- 📉 Real-time traffic graph (JFreeChart)
+- 🖥️ GUI with dark/light mode, connection buttons, and logs
+- 🚫 Graceful disconnection and loop breaking
+- 🧵 Threaded design for responsiveness
+
+---
+
