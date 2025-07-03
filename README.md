@@ -94,3 +94,17 @@ com.vpn/
 
 ---
 
+## 🚀 Usage
+
+### 1. Start the VPN Server (on remote or localhost)
+```
+mvn exec:java -Dexec.mainClass="com.vpn.VPNServer"
+```
+
+### 2. Launch the Client GUI
+```
+mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
+```
+
+**Note** - The project should be run from the root folder that is **vpn-project**.
+
