@@ -1,6 +1,7 @@
 com\vpn\ListInterfaces.class
 com\vpn\VPNServer.class
 com\vpn\EncryptedResponseReceiver.class
+com\vpn\TrafficMonitor.class
 com\vpn\VPNClientGUI.class
 com\vpn\EncryptedPacketForwarder.class
 com\vpn\CryptoUtils.class
