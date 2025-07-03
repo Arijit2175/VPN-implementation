@@ -149,3 +149,6 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 
 ---
 
+<br>
+
+**Developed by** - @Arijit2175
