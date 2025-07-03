@@ -14,7 +14,7 @@ This project is **not a production-grade VPN**, but a conceptual prototype to un
 - How symmetric (AES) and asymmetric (RSA) encryption collaborate
 - How GUI-based tools can monitor and control VPN flows
 
-It's ideal for students, hobbyists, and developers learning about:
+Some of the main concepts involved are:
 
 - Network programming
 - Encrypted communication
