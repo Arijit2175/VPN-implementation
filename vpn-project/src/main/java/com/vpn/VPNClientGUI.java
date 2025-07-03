@@ -30,6 +30,7 @@ public class VPNClientGUI extends JFrame {
         return new Font("Dialog", Font.PLAIN, 14);
     }
 
+    // Constructor to set up the GUI components
     public VPNClientGUI() {
         setTitle("🔒 VPN Client - Secure Tunnel");
         setSize(600, 450);
@@ -78,6 +79,7 @@ add(trafficMonitor, BorderLayout.EAST);
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
+    // Action listeners for connect and disconnect buttons
     private void onConnect(ActionEvent e) {
         connectButton.setEnabled(false);
     disconnectButton.setEnabled(true);
@@ -101,6 +103,7 @@ add(trafficMonitor, BorderLayout.EAST);
     snifferThread.start();
     }
 
+    // Disconnect action to stop the VPN client and sniffer
     private void onDisconnect(ActionEvent e) {
     log("🔕 Disconnecting...");
     VPNClientWithLogging.disconnect();
@@ -116,6 +119,7 @@ add(trafficMonitor, BorderLayout.EAST);
     disconnectButton.setEnabled(false);
     }
 
+    // Toggle between light and dark themes
     private void toggleTheme(ActionEvent e) {
         try {
             if (isDarkMode) {
@@ -132,6 +136,7 @@ add(trafficMonitor, BorderLayout.EAST);
         }
     }
 
+    // Log messages to the JTextArea in a thread-safe manner
     private void log(String message) {
         SwingUtilities.invokeLater(() -> logArea.append(message + '\n'));
     }
