@@ -26,6 +26,7 @@ public class VPNClientWithLogging {
 
     public static void runClient(JTextArea logArea, String serverIp) {
         try {
+            // Connect to the VPN server
             socket = new Socket(serverIp, PORT);
             socket.setSoTimeout(1000); 
             DataInputStream in = new DataInputStream(socket.getInputStream());
@@ -33,23 +34,27 @@ public class VPNClientWithLogging {
 
             log(logArea, "✅ Connected to VPN Server");
 
+            // Receive RSA public key from server
             byte[] pubBytes = Base64.getDecoder().decode(in.readUTF());
             PublicKey serverPub = KeyFactory.getInstance("RSA")
                     .generatePublic(new X509EncodedKeySpec(pubBytes));
             log(logArea, "🔑 RSA public key received");
 
+            // Securely exchange AES key
             aesKey = CryptoUtils.generateAESKey();
             byte[] encKey = CryptoUtils.rsaEncrypt(aesKey.getEncoded(), serverPub);
             out.writeUTF(Base64.getEncoder().encodeToString(encKey));
             out.flush();
             log(logArea, "📤 AES key sent securely");
 
+            // Send an initial request to the server
             String request = "GET /example";
             byte[] encReq = CryptoUtils.aesEncrypt(request.getBytes(), aesKey);
             out.writeUTF(Base64.getEncoder().encodeToString(encReq));
             out.flush();
             log(logArea, "📤 Sent: " + request);
 
+            // Receive and decrypt the server's response
             byte[] encResp = Base64.getDecoder().decode(in.readUTF());
             String resp = new String(CryptoUtils.aesDecrypt(encResp, aesKey));
             log(logArea, "📥 Received: " + resp);
@@ -69,6 +74,7 @@ public class VPNClientWithLogging {
         }
     }
 
+    // Disconnect from the VPN server and stop forwarding
     public static void disconnect() {
         forwardingEnabled = false;
 
@@ -92,6 +98,7 @@ public class VPNClientWithLogging {
         }
     }
 
+    // Log messages to the JTextArea in a thread-safe manner
     private static void log(JTextArea area, String msg) {
         SwingUtilities.invokeLater(() -> area.append(msg + '\n'));
     }
