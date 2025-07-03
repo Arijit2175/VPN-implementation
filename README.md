@@ -127,3 +127,14 @@ mvn exec:java -Dexec.mainClass="com.vpn.VPNClientGUI"
 | **FlatLaf**    | Modern Look-and-Feel for Swing        | 3.2     | [GitHub](https://github.com/JFormDesigner/FlatLaf) |
 | **JFreeChart** | Charting library for real-time graphs | 1.5.3   | [jfree.org](https://www.jfree.org/jfreechart/)     |
 
+---
+
+## 🧭 Applications
+
+- 🧪 Educational VPN Tool – Understand encrypted tunneling hands-on
+- 🔐 Custom VPN Use Case – Secure internal LAN traffic for demos
+- 🖥️ GUI + Networking Demo – Real-time Swing + Networking integration
+- 📊 Packet Monitoring – Visualize packet traffic on interfaces
+
+---
+
